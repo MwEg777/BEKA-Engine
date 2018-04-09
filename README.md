@@ -58,7 +58,7 @@ Example project included.
 		- Parameters: 
   
 		  - **scaleArray**: A 3-element float array that contains the new scale of x, y and z of the GameObject in order.
-		  - 
+		  
   	- **getScale**(): *function* 
   
 		  A function that returns the scale array of the GameObject.
@@ -70,13 +70,13 @@ Example project included.
 		  A function that returns the position array of the GameObject.
   
 		- Parameters: None
-		- 
+	
   	- **getAngle**(): *function* 
   
 		  A function that returns the rotation angle of the GameObject.
   
 		- Parameters: None
-		- 
+	
   	- **loadInitialPosition**(): *function* 
   
 		  A function that returns the initial position array that the GameObject was instantiated with.
