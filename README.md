@@ -16,26 +16,43 @@ Example project included.
 
 ● Classes:
 - GameObject: A base class for all Objects in the scene.
+
 - SpriteRenderer: A class that enables game objects to have a sprite, and renders it.
+
   Features:
+  
   flipX :  bool 
+  
   Bool that flips sprite in X axis when enabled.
   
+  
   flipY :  bool
+  
   Bool that flips sprite in Y axis when enabled.
   
+  
   FlipX(): function
+  
   A function that changes flipX state.
+  
   Parameters: None
+  
   
   FlipY(): function
+  
   A function that changes flipY state.
+  
   Parameters: None
   
+  
   setColor(newColor): function 
+  
   A function that sets the color of the sprite.
+  
   Parameters:
+  
   newColor: A 4-element array, carrying value of Red,Green,Blue and Alpha in order. each of the 4 elements vary from 0 to 1.
+  
   
   
   
