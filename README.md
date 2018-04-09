@@ -5,8 +5,11 @@ Example project included.
 
 ● Usage:
 1/Open GameLauncher.Py
+
 2/Modify "Keeper" to your Game project file name. Eg: if your game file is called MyGame.Py, replace Keeper with MyGame
+
 3/Run GameLauncher.Py
+
 
 -Note: PyGame is required to load images. To install it, open a cmd window and type: pip install pygame
 
