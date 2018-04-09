@@ -62,7 +62,7 @@ class GameObject:
         return self.angle
 
     def Del(self):
-        pass
+        del self
 
     def loadInitialPosition(self):
         glTranslate(self.initialPosition[0], self.initialPosition[1],self.initialPosition[2])
@@ -98,7 +98,7 @@ class GameImages:
         glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img)
         glEnable(GL_TEXTURE_2D)
 
-    def curImage(self,CurrentImage = 0):
+    def curImage(self,CurrentImage = 1):
         self.currentImage = CurrentImage
         glBindTexture(GL_TEXTURE_2D, self.images[self.currentImage - 1])
 
