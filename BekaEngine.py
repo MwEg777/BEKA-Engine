@@ -284,7 +284,7 @@ class BoxCollider:
 
 class RigidBody:
     gameObject = None
-    gravityAcceleration = -9.8 * 0.001
+    gravityAcceleration = 9.8
     gravityScale = 1
     useGravity = True
     angularDrag = 0
@@ -362,7 +362,7 @@ class RigidBody:
             self.actvelocity[1] = force[8]
             self.lastForcey = force[8]
 
-        self.actvelocity[1] = self.lastForcey + (self.gravityScale * self.gravityAcceleration * self.timeY)
+        self.actvelocity[1] = self.lastForcey + (self.gravityScale * self.gravityAcceleration * -0.001 *  self.timeY)
 
         self.newPos[1] += self.actvelocity[1]
 
