@@ -16,6 +16,7 @@ poopy.setName("Poopy Butthole")
 rick = GameObject()
 rick.setName("Rick")
 poopysprite = SpriteRenderer(poopy)
+poopyrb = RigidBody(poopy)
 ricksprite = SpriteRenderer(rick)
 backGround = GameObject()
 backGround.setName("Background")
@@ -28,12 +29,11 @@ def init():
     glMatrixMode(GL_MODELVIEW)
     mixer.init(frequency=48000)
     sound = mixer.Sound("ohwe.wav")
-    sound.play()
+    #sound.play()
     global gameImages
     gameImages = GameImages(2)
     gameImages.addImage("BG.png")
     gameImages.addImage("pb.png")
-
 
 
     gameImages.curImage(0)
@@ -42,10 +42,13 @@ def init():
 
     gameImages.curImage(0)
 
-    poopy.Instantiate([0, -0.5, 0], [1, 1, 1],0)
-    poopy.setScale([1,1,1])
-    rick.Instantiate([0,0.5,0],[1,1,1],0)
+    poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
+    poopy.smoothDamping = False
+    poopy.setScale([1, 1, 1])
+    rick.Instantiate([0, 0.5, 0],[1, 1, 1], 0)
     rick.setScale([3,3,1])
+    # Add a physical force to the GameObject. Parameters : Force in newtons, Vector of force on x and y in order.
+    #poopyrb.AddForce(0.01, [1, 1])
 
 
 
@@ -92,10 +95,9 @@ def draw():
     gameImages.curImage(1)
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
-
-
+    poopyrb.simulate()
+    poopy.RotateObject(360, 1)
     glFlush()
-    #print("Rick position is: " ,rick.getPos())
 
 
     x += 0.01
@@ -224,17 +226,19 @@ def keyboard(key, x, y):
     global curPosx
     global curPosy
     if key == b"d":
-        poopy.move([1.5,poopy.getPos()[1],0],0.1,0.1,False)
+        poopyrb.AddForce(0.005,[1,0])
     elif key == b"a":
-        poopy.move([-0.4, poopy.getPos()[1], 0], 0.1, 0.1,True)
+        poopyrb.AddForce(0.005, [-1, 0])
     elif key == b"w":
-        poopy.move([poopy.getPos()[0], 0.4, 0], 0.1, 0.1,False)
+        poopyrb.AddForce(0.1, [0, 1])
     elif key == b"s":
-        poopy.move([poopy.getPos()[0], -0.4, 0], 0.1, 0.1,True)
+        poopyrb.AddForce(0.005, [0, -1])
     if key == b"f":
         poopysprite.FlipX()
     if key == b"g":
         poopysprite.FlipY()
+    if key == b"b":
+        poopyrb.AddForce(0.1,[0,1])
     if key== b"r":
         if poopy.angle == 45:
             poopy.RotateObject(0,1)

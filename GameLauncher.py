@@ -11,8 +11,8 @@ from OpenGL.GLUT import *
 x = 0
 time_interval = 10  # try  1000 msec
 
-screenwidth = 1000
-screenheight = 1000
+screenwidth = 800
+screenheight = 800
 gameTitle = b"BEKA Engine"
 
 def Timer(v):

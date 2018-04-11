@@ -19,6 +19,7 @@ class GameObject:
     translationStepX = 0.01  # Current translation speed in X axis
     translationStepY = 0.01  # Current translation speed in Y axis
     smoothDamping = True
+    rotationStep = 0
     def __init__(self):
         pass
 
@@ -54,8 +55,9 @@ class GameObject:
 
     def RotateObject(self,TargetAngle,Step):
         self.targetAngle = TargetAngle
-        if self.angle != self.targetAngle:
-            self.angle += (Step)
+        self.rotationStep = Step
+        if not (  self.angle <= self.targetAngle + 1  and  self.angle > self.targetAngle - 1  ):
+            self.angle += self.rotationStep
 
 
     def getAngle(self):
@@ -208,10 +210,7 @@ class SpriteRenderer:
 
         glTranslatef(self.gameObject.getPos()[0], self.gameObject.getPos()[1] * 2, 0)
 
-        self.gameObject.RotateObject(self.gameObject.targetAngle,1)
-
-        if self.gameObject.name == "Poopy Butthole":
-            glRotate(self.rotang, 0, 0, 1)
+        self.gameObject.RotateObject(self.gameObject.targetAngle,self.gameObject.rotationStep)
 
         glRotatef(self.gameObject.angle, 0, 0, 1)
 
@@ -240,6 +239,9 @@ class SpriteRenderer:
     currentVelocity = 0
     def SmoothDamp(self, current, target, smoothTime, maxVelocity):
         global currentVelocity
+        # maxVelocity is 0.001
+        # current is 0
+        # target is 0.001
         # current is current X position of player
         # target is target X position that I want to reach
         # curVelocity is the current body velocity [ current step ]
@@ -250,8 +252,9 @@ class SpriteRenderer:
         #                where : maxSpeed is maximum step, defined by initialStep
         #                where : smoothTime should slow down the whole process
         realtarget = 0.5 * target
+        # target is now 0.0005
         distance = current - realtarget
-
+        # distance is now -0.0005
         if self.gameObject.smoothDamping:
 
 
@@ -259,12 +262,14 @@ class SpriteRenderer:
             if currentVelocity > maxVelocity:
                 currentVelocity = maxVelocity
         else:
-            if math.fabs(distance) > maxVelocity/2:
+            if math.fabs(distance) > maxVelocity/4: # first term is 0.0005 , second term is 0.0005
+                #print("Condition occured! math.fabs(distance) > maxVelocity/2")
                 currentVelocity = maxVelocity
             else:
+                #print("Condition NOT occured! math.fabs(distance) > maxVelocity/2")
                 currentVelocity = 0
 
-        print("Current:", current, ", Target: ", realtarget)
+        #print("Current:", current, ", Target: ", realtarget)
         return currentVelocity
         # an if statement to prevent y from exceeding maxSpeed
         # x^4e
@@ -277,7 +282,108 @@ class BoxCollider:
         self.gameObject = gObject
 
 
+class RigidBody:
+    gameObject = None
+    gravityAcceleration = -9.8 * 0.001
+    gravityScale = 1
+    useGravity = True
+    angularDrag = 0
+    linearDrag = 0.5
+    mass = 1
+    actvelocity = [0,0]
+    freezeRotation = False
+    newPos = [0,0,0]
+    timeY = 0
+    lastForcey = 0
+    appliedForcesInfo = [] # Elements : 0/Force, 1/DirectionX , 2/DirectionY, 3/initialVelocityX, 4/initialVelocityY, 5/initialTimeX, 6/initialTimeY, 7/resultVelocityX, 8/resultVelocityY, 9/ToBeRemoved
+    def __init__(self, gObject):
+        self.gameObject = gObject
 
+    def getVelocity(self):
+        return self.actvelocity
+
+    def setMass(self,Mass):
+        self.mass = Mass
+
+
+    def AddForce(self,Force = 1.0,Direction = [1,0]):
+
+        print("velocity[0] before: ", self.actvelocity[0])
+        self.actvelocity[0] += Force * Direction[0] * self.mass
+        self.actvelocity[1] += Force * Direction[1] * self.mass
+        self.appliedForcesInfo.append(
+            [Force, Direction[0], Direction[1], self.actvelocity[0], self.actvelocity[1], 0, 0, 0, 0, False])
+
+        print("velocity[0] after: ", self.actvelocity[0])
+
+        #Make an array containing forces DONE
+        #Determine when a force effect is over by checking the equation of it when it's near zero DONE
+        #constantly check that then remove it from forces array DONE
+        #make a for loop to add the effect of each force DONE
+        print("Forces list length is now: ", len(self.appliedForcesInfo))
+    def simulate(self):
+        glLoadIdentity()
+        self.timeY += 0.011
+
+        # ----------------------------------------Horizontal Force-------------------------------------------------
+
+        if self.actvelocity[0] <= 0.0001 and self.actvelocity[0] > -0.0001:
+            self.actvelocity[0] = 0
+
+        for force in self.appliedForcesInfo:
+            force[5] += 0.01
+            force[7] = (force[3] * math.pow(math.e,
+                                                                  (-self.linearDrag * force[5]) / self.mass))
+
+            if (force[7] < 0.0001 and force[7] > -0.0001):    # Detect if specific force effect is over
+                force[9] = True    # Remove specific ended force from forces array
+                force[7] = 0
+
+            self.actvelocity[0] = force[7]   # Apply the effect of this force to the velocity of X
+
+
+        self.newPos[0] += self.actvelocity[0]
+
+        # -------------------------------------------------------------------------------------------------------
+
+        # -----------------------------Vertical Force ( Including Gravity )--------------------------------------
+        if self.actvelocity[1] <= 0.0001 and self.actvelocity[1] > -0.0001:
+            if not self.useGravity:
+                self.actvelocity[1] = 0
+        if self.timeY > 5.5:
+            self.timeY = 5.5
+        for force in self.appliedForcesInfo:
+            force[6] += 0.01
+            force[8] = (force[4] * math.pow(math.e,
+                                                                  (-self.linearDrag * force[6]) / self.mass))
+            if (force[7] < 0.0001 and force[7] > -0.0001) and (force[8] < 0.0001 and force[8] > -0.0001) and force[9]:  # Detect if specific force effect is over
+                self.appliedForcesInfo.remove(force)    # Remove specific ended force from forces array
+
+            self.actvelocity[1] = force[8]
+            self.lastForcey = force[8]
+
+        self.actvelocity[1] = self.lastForcey + (self.gravityScale * self.gravityAcceleration * self.timeY)
+
+        self.newPos[1] += self.actvelocity[1]
+
+        if not self.useGravity:
+            self.timeY = 0
+        if self.timeY > 5.5:
+            self.timeY = 5.5
+
+        # -------------------------------------------------------------------------------------------------------
+
+        # -----------------------------------------Air Resistance------------------------------------------------
+
+        if math.fabs(self.actvelocity[1]) > 0.054:
+            if self.actvelocity[1] > 0:
+                self.actvelocity[1] = 0.054
+            else:
+                self.actvelocity[1] = -0.054
+
+        # -------------------------------------------------------------------------------------------------------
+
+        self.gameObject.move([self.newPos[0], self.newPos[1],self.gameObject.getPos()[2]],math.fabs(self.actvelocity[0]),math.fabs(self.actvelocity[1]),False)
 
 
 
