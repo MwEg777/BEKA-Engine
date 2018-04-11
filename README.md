@@ -4,6 +4,8 @@ A Python-based 2D Game engine, inspired by Unity3D
 
 Example project included.
 
+---	***This game engine is based on Python and OpenGL. It only uses PyGame to load image files as strings, the rest is processed by the BEKA Game Engine.***
+
 # Usage
 1/Open GameLauncher.Py
 
@@ -12,7 +14,7 @@ Example project included.
 3/Run GameLauncher.Py
 
 
-**-Note: PyGame is required to load images. To install it, open a cmd window and type: pip install pygame**
+**-Note: PyGame is required to load images. To install it, open a cmd window then type: pip install pygame**
 
 
 # **Classes**:
