@@ -34,7 +34,7 @@ def init():
     gameImages = GameImages(2)
     gameImages.addImage("BG.png")
     gameImages.addImage("pb.png")
-
+    #poopy.RotateObject(360, 1)
 
     gameImages.curImage(0)
     backGround.Instantiate([0,0,0],[1,1,1],0)
@@ -96,7 +96,7 @@ def draw():
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
     poopyrb.simulate()
-    poopy.RotateObject(360, 1)
+
     glFlush()
 
 
@@ -230,7 +230,7 @@ def keyboard(key, x, y):
     elif key == b"a":
         poopyrb.AddForce(0.005, [-1, 0])
     elif key == b"w":
-        poopyrb.AddForce(0.1, [0, 1])
+        poopyrb.AddForce(0.01, [0, 1])
     elif key == b"s":
         poopyrb.AddForce(0.005, [0, -1])
     if key == b"f":
@@ -239,15 +239,9 @@ def keyboard(key, x, y):
         poopysprite.FlipY()
     if key == b"b":
         poopyrb.AddForce(0.1,[0,1])
-    if key== b"r":
-        if poopy.angle == 45:
-            poopy.RotateObject(0,1)
-        else:
-            poopy.RotateObject(45, 1)
-        if rick.angle == 45:
-            rick.RotateObject(0,1)
-        else:
-            rick.RotateObject(45, 1)
+    if key == b"r":
+        #poopyrb.AddTorque(1.0)
+        poopyrb.AddForceAtPosition(1.0, [0, 0], [1, 0], [1, 20])
     #if key== b"m":
         #poopy.targetPosition = [1,0,0]
 

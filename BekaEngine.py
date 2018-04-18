@@ -20,6 +20,7 @@ class GameObject:
     translationStepY = 0.01  # Current translation speed in Y axis
     smoothDamping = True
     rotationStep = 0
+    initialRotationStep = 0
     def __init__(self):
         pass
 
@@ -56,8 +57,13 @@ class GameObject:
     def RotateObject(self,TargetAngle,Step):
         self.targetAngle = TargetAngle
         self.rotationStep = Step
-        if not (  self.angle <= self.targetAngle + 1  and  self.angle > self.targetAngle - 1  ):
+        if not self.targetAngle == 360:
+            if not (self.angle <= self.targetAngle + 1  and  self.angle > self.targetAngle - 1):
+                self.angle += self.rotationStep
+        else:
             self.angle += self.rotationStep
+            if self.angle >= 360:
+                self.angle -= 360
 
 
     def getAngle(self):
@@ -286,15 +292,16 @@ class RigidBody:
     gameObject = None
     gravityAcceleration = 9.8
     gravityScale = 1
-    useGravity = True
-    angularDrag = 0
-    linearDrag = 0.5
+    useGravity = False
+    angularDrag = 0.01
+    linearDrag = 0.05
     mass = 1
     actvelocity = [0,0]
     freezeRotation = False
     newPos = [0,0,0]
     timeY = 0
     lastForcey = 0
+    underTorque = False
     appliedForcesInfo = [] # Elements : 0/Force, 1/DirectionX , 2/DirectionY, 3/initialVelocityX, 4/initialVelocityY, 5/initialTimeX, 6/initialTimeY, 7/resultVelocityX, 8/resultVelocityY, 9/ToBeRemoved
     def __init__(self, gObject):
         self.gameObject = gObject
@@ -304,6 +311,39 @@ class RigidBody:
 
     def setMass(self,Mass):
         self.mass = Mass
+
+    def AddForceAtPosition(self,Force = 1.0,ForcePoint = [0,0], Direction = [1,0], Test = [1,0]):
+        # Wait for collision to be implemented
+        # This function will cause both Force and Torque
+
+        # ------------------------------------- Torque part -------------------------------------
+        #                              Torque will be calculated using:
+        # Torque = Force * r * sin(theta)
+        # Force = Force
+        # r = distance between body center and force point
+        # Force point varies from -1 to 1 , where 0 is the body center
+        # r = math.sqrt(math.pow((self.gameObject.GetPos[0] - ForcePoint[0]), 2) + math.pow((self.gameObject.GetPos[1] - ForcePoint[1]), 2))        #Unline after test
+        # sin(theta) = angle between Force direction and axis of rotation
+        # to calculate theta:
+        #   1/Calculate the Axis of rotation vector, as follows:
+        #       new vector = ( X * cos ( alpha ) + y * sin ( alpha ) , -X * sin alpha + y * cos ( alpha ) )
+        #       Where X     --> X of first vector ( equals 1 )
+        #       Where Y     --> Y of first vector ( equals 0 )
+        #       Where alpha --> Angle between two vectors ( self.gameObject.GetAngle() )
+        # newVect = [ 1 * math.cos(self.gameObject.getAngle()), -1 * math.sin(self.gameObject.getAngle()) ]        #Unline after test
+        #   2/Use this equation after obtaining new vector ( newVect ) to get the angle between both vectors
+        # theta = math.acos( ( ( Direction[0] *  newVect[0] ) + ( Direction[1] * newVect[1] ) ) /  ( ( math.sqrt(( math.pow(Direction[0],2) + math.pow(Direction[1],2) )) )*( ( math.sqrt(( math.pow(newVect[0],2) + math.pow(newVect[1],2) )) ) ) ) )        #Unline after test
+        #   3/Torque equals Force * r * sin theta
+        # Test purpose : r = Test[0] and theta = Test[1]
+        r = Test[0]
+        theta = Test[1]
+        torque = Force * r * math.sin(math.radians(theta))
+        print("Torque = ", torque, ", math.sin(theta) = ", math.sin(math.radians(theta)), ", Theta = ", theta)
+
+        self.AddTorque(torque)
+
+        # --------------------------------------------------------------------------------------
+
 
 
     def AddForce(self,Force = 1.0,Direction = [1,0]):
@@ -321,9 +361,20 @@ class RigidBody:
         #constantly check that then remove it from forces array DONE
         #make a for loop to add the effect of each force DONE
         print("Forces list length is now: ", len(self.appliedForcesInfo))
+
+    def AddTorque(self,Force = 1.0):
+        self.gameObject.RotateObject(360, self.gameObject.rotationStep + Force)
+        self.underTorque = True
+
+
+
     def simulate(self):
         glLoadIdentity()
         self.timeY += 0.011
+        #print("RotationStep is: ", self.gameObject.rotationStep)
+        """if self.gameObject.rotationStep > 0:
+            print("Decreasing")
+            self.gameObject.rotationStep -= self.angularDrag"""
 
         # ----------------------------------------Horizontal Force-------------------------------------------------
 
@@ -362,7 +413,7 @@ class RigidBody:
             self.actvelocity[1] = force[8]
             self.lastForcey = force[8]
 
-        self.actvelocity[1] = self.lastForcey + (self.gravityScale * self.gravityAcceleration * -0.001 *  self.timeY)
+        self.actvelocity[1] = self.lastForcey + ((self.gravityScale if self.useGravity else 0) * self.gravityAcceleration * -0.001 *  self.timeY)
 
         self.newPos[1] += self.actvelocity[1]
 
@@ -382,6 +433,11 @@ class RigidBody:
                 self.actvelocity[1] = -0.054
 
         # -------------------------------------------------------------------------------------------------------
+
+        if self.gameObject.rotationStep > 0 and self.underTorque:
+            self.gameObject.rotationStep -= self.angularDrag
+        else:
+            self.underTorque = False
 
         self.gameObject.move([self.newPos[0], self.newPos[1],self.gameObject.getPos()[2]],math.fabs(self.actvelocity[0]),math.fabs(self.actvelocity[1]),False)
 

@@ -4,8 +4,6 @@ A Python-based 2D Game engine, inspired by Unity3D
 
 Example project included.
 
----	***This game engine is based on Python and OpenGL. It only uses PyGame to load image files as strings, the rest is processed by the BEKA Game Engine.***
-
 # Usage
 1/Open GameLauncher.Py
 
@@ -14,11 +12,10 @@ Example project included.
 3/Run GameLauncher.Py
 
 
-**-Note: PyGame is required to load images. To install it, open a cmd window then type: pip install pygame**
+**-Note: PyGame is required to load images. To install it, open a cmd window and type: pip install pygame**
 
 
 # **Classes**:
-
 ● **GameObject**: A base class for all Objects in the scene.
 		
 		
@@ -124,8 +121,6 @@ Example project included.
 		- Parameters: 
   
 		  - **Name**: A string that contains the new name for the GameObject.
-		  
-----------------
 
 ● **SpriteRenderer**: A class that enables game objects to have a sprite, and renders it.
 
@@ -191,58 +186,6 @@ Example project included.
 		  - **current**: The current value that you want to make a transition from. Constantly provide the function with this value to retrieve the velocity of transition.
 		  - **target**: Target value that you want to reach. Can be either static or dynamic.
 		  - **maxVelocity**: A float value that represents the velocity that you don't want your object to exceed, Regardless of its distance to the target value.
-		  
-----------------
-
-● **Rigidbody**: A class that adds physics simulation to your game object.
-
-  - Properties and Methods:
-	  -	
-  
-	  - **gameObject**:  *GameObject* 
-  
-			The GameObject to which this Rigidbody class is attached. 
-			
-	  - **gravityAcceleration**:  *float* 
-  
-			An integer value that determines the gravity acceleration value for your game. Default is 9.8
-			
-	  - **gravityScale**:  *float* 
-  
-			Gravity acceleration factor. Default is 1
-
-	  - **linearDrag**:  *float* 
-  
-			A value that determines the Rigidbody's linear drag factor. Used for simulating air resistance or friction. Default is 0.5
-
-	  - **mass**:  *float* 
-  
-			A value that determines the Rigidbody's mass. Default is 1
-
-  	- **setMass**(Mass): *function* 
-  
-		  A function that sets rigidbody's mass.
-  
-		- Parameters: 
-  
-		  - **Mass**: The new mass value for the Rigidbody.
-
-  	- **AddForce**(Force = 1.0, Direction = [1,0]): *function* 
-  
-		  A function that adds a force to the Rigidbody	using a value and a vector.
-  
-		- Parameters: 
-  
-		  - **Force**: The amount of force to be added to the Rigidbody.
-		  - **Direction**: A 2-element array containing the direction of the applied force in X and Y axis in order.
-
-  	- **simulate**(): *function* 
-  
-		  The main function that processes and simulates the Rigidbody physics. Constantly call this function every frame or game time instance to get your Rigidbody physics to work.
-  
-		- Parameters: None
- 
-----------------
 
 ● **GameImages**: A class that enables you to use image files in the game, mostly to use with Sprites.
 
@@ -276,3 +219,7 @@ Example project included.
   	- **getImageCount**(): *function* 
   
 		  A function that returns the amount of images that are loaded by the game engine.
+  
+		- Parameters: 
+  
+		  - **CurrentImage**: An integer value that is used to select an image to use.
