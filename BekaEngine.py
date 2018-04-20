@@ -6,23 +6,29 @@ import time
 import pygame
 from pygame import mixer
 
+GameObjects = list()
+
 class GameObject:
-    name = "GameObject"
-    initialPosition = [0, 0, 0]
-    position = [0, 0, 0]  # GameObject's Position
-    scale = [0, 0, 0]  # GameObject's Scale
-    angle = 0  # GameObject's Z rotation ( 2D rotation )
-    targetAngle = 0  # The angle to which the GameObject is willing to rotate
-    targetPosition = [0,0,0]  # The position which the GameObject is willing to reach
-    initialTranslationStepX = 0.01  # Maximum translation speed in X axis
-    initialTranslationStepY = 0.01  # Maximum translation speed in Y axis
-    translationStepX = 0.01  # Current translation speed in X axis
-    translationStepY = 0.01  # Current translation speed in Y axis
-    smoothDamping = True
-    rotationStep = 0
-    initialRotationStep = 0
+
+
     def __init__(self):
-        pass
+        self.name = "GameObject"
+        self.initialPosition = [0, 0, 0]
+        self.position = [0, 0, 0]  # GameObject's Position
+        self.scale = [0, 0, 0]  # GameObject's Scale
+        self.angle = 0  # GameObject's Z rotation ( 2D rotation )
+        self.targetAngle = 0  # The angle to which the GameObject is willing to rotate
+        self.targetPosition = [0, 0, 0]  # The position which the GameObject is willing to reach
+        self.initialTranslationStepX = 0.01  # Maximum translation speed in X axis
+        self.initialTranslationStepY = 0.01  # Maximum translation speed in Y axis
+        self.translationStepX = 0.01  # Current translation speed in X axis
+        self.translationStepY = 0.01  # Current translation speed in Y axis
+        self.smoothDamping = True
+        self.rotationStep = 0
+        self.initialRotationStep = 0
+        self.RigidBody = None
+        global GameObjects
+        GameObjects.append(self)
 
     def setPos(self, positionArray):  # A function used to set GameObject's position. Usually internally used
         self.position = positionArray
@@ -69,26 +75,34 @@ class GameObject:
     def getAngle(self):
         return self.angle
 
-    def Del(self):
+    def Destroy(self):
         del self
 
     def loadInitialPosition(self):
-        glTranslate(self.initialPosition[0], self.initialPosition[1],self.initialPosition[2])
+        glTranslate(self.initialPosition[0], self.initialPosition[1] * 2,self.initialPosition[2])
 
     def Instantiate(self, positionArray = [0,0,0], scaleArray = [1,1,1],Angle = 0):
-        self.position = positionArray
+        #self.position = positionArray
+
         self.scale = scaleArray
         glScale(scaleArray[0],scaleArray[1],scaleArray[2])
         self.angle = Angle
-        self.targetPosition = self.position
-        self.initialPosition = self.position
+
+        if self.RigidBody is not None:
+            self.RigidBody.newPos =  [ positionArray[0] * 2,positionArray[1] * 2,positionArray[2] ]
+        #self.move(positionArray,0.01,0.01)
+        self.setPos(positionArray)
+        self.initialPosition = positionArray
+        self.targetPosition = [self.getPos()[0], self.getPos()[1], self.getPos()[2]]
+        self.loadInitialPosition()
 
 
 class GameImages:
 
-    currentImage = 0
-    imageCount = 0
+
     def __init__(self,imagesCount = 1):
+        self.currentImage = 0
+        self.imageCount = 0
         self.images = glGenTextures(imagesCount)
         glBindTexture(GL_TEXTURE_2D, self.images[0])
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
@@ -115,23 +129,24 @@ class GameImages:
 
 
 class SpriteRenderer:
-    gameObject = None
-    texCoordX1 = 0
-    texCoordX2 = 0
-    texCoordY1 = 0
-    texCoordY2 = 0
-    color = [1, 1, 1, 1]
-    flipX = False
-    flipY = False
-    density = 0.1
-    height = 0
-    startTime = 0
-    interval = 0.1
-    WidthToHeight = 0
+
 
     def __init__(self, gObject):
         self.gameObject = gObject
-
+        self.texCoordX1 = 0
+        self.texCoordX2 = 0
+        self.texCoordY1 = 0
+        self.texCoordY2 = 0
+        self.color = [1, 1, 1, 1]
+        self.flipX = False
+        self.flipY = False
+        self.density = 0.1
+        self.height = 0
+        self.startTime = 0
+        self.interval = 0.1
+        self.WidthToHeight = 0
+        self.currentVelocity = 0
+        self.rotang = 0
 
     def setColor(self,newColor):
         self.color = newColor
@@ -156,10 +171,11 @@ class SpriteRenderer:
         else:
             self.flipY = True
 
-    rotang = 0
+
     #Draws Sprite every frame. Sprite is determined using 4 Coordinates from the main sprite sheet.
     def DrawSprite(self, TextureCoordX1 = 0, TextureCoordX2 = 0, TextureCoordY1 = 0, TextureCoordY2 = 0, WidthToHeightRatio = 1):
         global currentVelocity
+        curGameObject = self.gameObject
         self.rotang += 1
         self.gameObject.loadInitialPosition()
         #print("self of SpriteRenderer DrawSprite is: ", self)
@@ -242,9 +258,8 @@ class SpriteRenderer:
 
         glEnd()
 
-    currentVelocity = 0
+
     def SmoothDamp(self, current, target, smoothTime, maxVelocity):
-        global currentVelocity
         # maxVelocity is 0.001
         # current is 0
         # target is 0.001
@@ -263,49 +278,48 @@ class SpriteRenderer:
         # distance is now -0.0005
         if self.gameObject.smoothDamping:
 
-
-            currentVelocity = math.pow(math.fabs(distance), (0.7 * math.e))
-            if currentVelocity > maxVelocity:
-                currentVelocity = maxVelocity
+            self.currentVelocity = math.pow(math.fabs(distance), (0.7 * math.e))
+            if self.currentVelocity > maxVelocity:
+                self.currentVelocity = maxVelocity
         else:
             if math.fabs(distance) > maxVelocity/4: # first term is 0.0005 , second term is 0.0005
                 #print("Condition occured! math.fabs(distance) > maxVelocity/2")
-                currentVelocity = maxVelocity
+                self.currentVelocity = maxVelocity
             else:
                 #print("Condition NOT occured! math.fabs(distance) > maxVelocity/2")
-                currentVelocity = 0
+                self.currentVelocity = 0
 
         #print("Current:", current, ", Target: ", realtarget)
-        return currentVelocity
+        return self.currentVelocity
         # an if statement to prevent y from exceeding maxSpeed
         # x^4e
 
 
 class BoxCollider:
-    gameObject = None
 
     def __init__(self, gObject):
         self.gameObject = gObject
 
 
 class RigidBody:
-    gameObject = None
-    gravityAcceleration = 9.8
-    gravityScale = 1
-    useGravity = False
-    angularDrag = 0.01
-    linearDrag = 0.05
-    mass = 1
-    actvelocity = [0,0]
-    freezeRotation = False
-    newPos = [0,0,0]
-    timeY = 0
-    lastForcey = 0
-    underTorque = False
-    appliedForcesInfo = [] # Elements : 0/Force, 1/DirectionX , 2/DirectionY, 3/initialVelocityX, 4/initialVelocityY, 5/initialTimeX, 6/initialTimeY, 7/resultVelocityX, 8/resultVelocityY, 9/ToBeRemoved
+
+
     def __init__(self, gObject):
         self.gameObject = gObject
-
+        self.gameObject.RigidBody = self
+        self.appliedForcesInfo = [] # Elements : 0/Force, 1/DirectionX , 2/DirectionY, 3/initialVelocityX, 4/initialVelocityY, 5/initialTimeX, 6/initialTimeY, 7/resultVelocityX, 8/resultVelocityY, 9/ToBeRemoved
+        self.gravityAcceleration = 9.8
+        self.gravityScale = 1
+        self.useGravity = False
+        self.angularDrag = 0.01
+        self.linearDrag = 0.05
+        self.mass = 1
+        self.actvelocity = [0, 0]
+        self.freezeRotation = False
+        self.newPos = [0,0,0]
+        self.timeY = 0
+        self.lastForcey = 0
+        self.underTorque = False
     def getVelocity(self):
         return self.actvelocity
 
@@ -322,7 +336,7 @@ class RigidBody:
         # Force = Force
         # r = distance between body center and force point
         # Force point varies from -1 to 1 , where 0 is the body center
-        # r = math.sqrt(math.pow((self.gameObject.GetPos[0] - ForcePoint[0]), 2) + math.pow((self.gameObject.GetPos[1] - ForcePoint[1]), 2))        #Unline after test
+        r = math.sqrt(math.pow((self.gameObject.getPos()[0] - ForcePoint[0]), 2) + math.pow((self.gameObject.getPos()[1] - ForcePoint[1]), 2))        #Unline after test
         # sin(theta) = angle between Force direction and axis of rotation
         # to calculate theta:
         #   1/Calculate the Axis of rotation vector, as follows:
@@ -335,7 +349,7 @@ class RigidBody:
         # theta = math.acos( ( ( Direction[0] *  newVect[0] ) + ( Direction[1] * newVect[1] ) ) /  ( ( math.sqrt(( math.pow(Direction[0],2) + math.pow(Direction[1],2) )) )*( ( math.sqrt(( math.pow(newVect[0],2) + math.pow(newVect[1],2) )) ) ) ) )        #Unline after test
         #   3/Torque equals Force * r * sin theta
         # Test purpose : r = Test[0] and theta = Test[1]
-        r = Test[0]
+        #r = Test[0]
         theta = Test[1]
         torque = Force * r * math.sin(math.radians(theta))
         print("Torque = ", torque, ", math.sin(theta) = ", math.sin(math.radians(theta)), ", Theta = ", theta)
@@ -344,26 +358,28 @@ class RigidBody:
 
         # --------------------------------------------------------------------------------------
 
+        # ------------------------------------- Force part -------------------------------------
+
+
+
+
+        self.AddForce(Force, Direction)
+
+        # --------------------------------------------------------------------------------------
+
 
 
     def AddForce(self,Force = 1.0,Direction = [1,0]):
-
-        print("velocity[0] before: ", self.actvelocity[0])
+        print("Force Added To: ", self.gameObject.name)
         self.actvelocity[0] += Force * Direction[0] * self.mass
         self.actvelocity[1] += Force * Direction[1] * self.mass
+        #print("Forces list of" , self.gameObject.name ,"before append:", len(self.appliedForcesInfo))
         self.appliedForcesInfo.append(
             [Force, Direction[0], Direction[1], self.actvelocity[0], self.actvelocity[1], 0, 0, 0, 0, False])
-
-        print("velocity[0] after: ", self.actvelocity[0])
-
-        #Make an array containing forces DONE
-        #Determine when a force effect is over by checking the equation of it when it's near zero DONE
-        #constantly check that then remove it from forces array DONE
-        #make a for loop to add the effect of each force DONE
-        print("Forces list length is now: ", len(self.appliedForcesInfo))
+        #print("Forces list of", self.gameObject.name, "after append:", len(self.appliedForcesInfo))
 
     def AddTorque(self,Force = 1.0):
-        self.gameObject.RotateObject(360, self.gameObject.rotationStep + Force)
+        self.gameObject.RotateObject(360, self.gameObject.rotationStep + (Force * 100))
         self.underTorque = True
 
 
@@ -438,8 +454,10 @@ class RigidBody:
             self.gameObject.rotationStep -= self.angularDrag
         else:
             self.underTorque = False
-
+        #if self.gameObject.name == "Bar":
+            #print("Name: ", self.gameObject.name, ", newPos: ", self.newPos, ", curPos: ", self.gameObject.getPos(), ", TargetPos: ", self.gameObject.targetPosition)
         self.gameObject.move([self.newPos[0], self.newPos[1],self.gameObject.getPos()[2]],math.fabs(self.actvelocity[0]),math.fabs(self.actvelocity[1]),False)
+
 
 
 

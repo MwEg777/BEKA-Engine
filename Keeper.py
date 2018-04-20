@@ -9,15 +9,19 @@ time_interval = 10  # try  1000 msec
 
 screenwidth = 800
 screenheight = 800
-
 rotation = 0
 poopy = GameObject()
 poopy.setName("Poopy Butthole")
 rick = GameObject()
 rick.setName("Rick")
+bar = GameObject()
+bar.setName("Bar")
 poopysprite = SpriteRenderer(poopy)
 poopyrb = RigidBody(poopy)
 ricksprite = SpriteRenderer(rick)
+barsprite = SpriteRenderer(bar)
+barrb = RigidBody(bar)
+#barrb.useGravity = True
 backGround = GameObject()
 backGround.setName("Background")
 backGroundSprite = SpriteRenderer(backGround)
@@ -45,8 +49,10 @@ def init():
     poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
     poopy.smoothDamping = False
     poopy.setScale([1, 1, 1])
-    rick.Instantiate([0, 0.5, 0],[1, 1, 1], 0)
+    rick.Instantiate()
     rick.setScale([3,3,1])
+    bar.Instantiate([0, 0, 0],[1, 1, 1], 0)
+    bar.setScale([5,5,1])
     # Add a physical force to the GameObject. Parameters : Force in newtons, Vector of force on x and y in order.
     #poopyrb.AddForce(0.01, [1, 1])
 
@@ -64,7 +70,6 @@ keeperwidth = 0.5
 keeperheight = 0.4
 keeperoffsetx = 0.9
 keeperoffsety = 0.9
-
 bgColor = [0.1,0.1,0.1,1]
 bgChanger = [0,0,0,0,0,0]
 def draw():
@@ -81,12 +86,17 @@ def draw():
     global keeperheight
     global rotation
     global poopy
+    global barsprite
     global poopysprite
     global rick
     global ricksprite
     global bgColor
     global gameImages
-
+    global GameObjects
+    global barrb
+    global bar
+    #for i in range(len(GameObjects)):
+    #    print("GameObject #", i, ": ", GameObjects[i].name)
     glClear(GL_COLOR_BUFFER_BIT)
     gameImages.curImage(0)
     backGroundSprite.DrawSprite(0, 1, 1, 0, 1)
@@ -95,8 +105,9 @@ def draw():
     gameImages.curImage(1)
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
+    barsprite.DrawSprite(0.325,0.14,0.95,0.97375,7.7894736842)
     poopyrb.simulate()
-
+    barrb.simulate()
     glFlush()
 
 
@@ -132,6 +143,7 @@ def backgroundColorChanger():
     global redFlag
     global greenFlag
     global blueFlag
+
 
     if redFlag:
         redChange = random.uniform(0.0001,0.001)
@@ -225,6 +237,9 @@ curPosy = 0
 def keyboard(key, x, y):
     global curPosx
     global curPosy
+    global barrb
+    global poopyrb
+    global poopysprite
     if key == b"d":
         poopyrb.AddForce(0.005,[1,0])
     elif key == b"a":
@@ -238,10 +253,11 @@ def keyboard(key, x, y):
     if key == b"g":
         poopysprite.FlipY()
     if key == b"b":
-        poopyrb.AddForce(0.1,[0,1])
+        barrb.AddForce(0.005,[0,1])
     if key == b"r":
-        #poopyrb.AddTorque(1.0)
-        poopyrb.AddForceAtPosition(1.0, [0, 0], [1, 0], [1, 20])
-    #if key== b"m":
-        #poopy.targetPosition = [1,0,0]
+        barrb.angularDrag = 0.005
+        barrb.AddForceAtPosition(0.003, [1, 0], [0.5, 1], [1, 90])
+    if key == b"q":
+        barrb.AddForceAtPosition(-0.003, [-1, 0], [0.5, 1], [1, 90])
+
 
