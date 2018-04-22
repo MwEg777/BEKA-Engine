@@ -53,8 +53,8 @@ def MouseMotion(button,state,x,y): #Triggers with both MouseClick Down or Up
         mouseDown = False
         x2 = x
         y2 = y
-        print("X1: ", x1 / glutGet(GLUT_WINDOW_WIDTH), ", X2: ", x2 / glutGet(GLUT_WINDOW_WIDTH), ", Y1: ", y1  / (glutGet(GLUT_WINDOW_HEIGHT)),
-              ", Y2: ", y2  / (glutGet(GLUT_WINDOW_HEIGHT)))
+        print("X1: ", x1 / glutGet(GLUT_WINDOW_WIDTH), ", X2: ", x2 / glutGet(GLUT_WINDOW_WIDTH), ", Y1: ", 1 - (y1  / (glutGet(GLUT_WINDOW_HEIGHT))),
+              ", Y2: ",  1 - (y2  / (glutGet(GLUT_WINDOW_HEIGHT))))
 
 
 def MotionFunc(x,y):  # Mouse While Holding Button

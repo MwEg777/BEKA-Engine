@@ -10,6 +10,7 @@ time_interval = 10  # try  1000 msec
 screenwidth = 800
 screenheight = 800
 rotation = 0
+button1 = UI()
 poopy = GameObject()
 poopy.setName("Poopy Butthole")
 rick = GameObject()
@@ -35,17 +36,13 @@ def init():
     sound = mixer.Sound("ohwe.wav")
     #sound.play()
     global gameImages
-    gameImages = GameImages(2)
-    gameImages.addImage("BG.png")
-    gameImages.addImage("pb.png")
+    gameImages = GameImages(["pb.PNG", "BG.png"])
     #poopy.RotateObject(360, 1)
-
+    button1.Create("button")
     gameImages.curImage(0)
     backGround.Instantiate([0,0,0],[1,1,1],0)
     backGround.setScale([20, 20, 1])
-
-    gameImages.curImage(0)
-
+    gameImages.curImage(1)
     poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
     poopy.smoothDamping = False
     poopy.setScale([1, 1, 1])
@@ -95,11 +92,10 @@ def draw():
     global GameObjects
     global barrb
     global bar
-    #for i in range(len(GameObjects)):
-    #    print("GameObject #", i, ": ", GameObjects[i].name)
+    global button1
     glClear(GL_COLOR_BUFFER_BIT)
     gameImages.curImage(0)
-    backGroundSprite.DrawSprite(0, 1, 1, 0, 1)
+    backGroundSprite.DrawSprite(0, 1, 0, 1, 1)
     backgroundColorChanger()
     backGroundSprite.setColor(bgColor)
     gameImages.curImage(1)
@@ -108,6 +104,7 @@ def draw():
     barsprite.DrawSprite(0.325,0.14,0.95,0.97375,7.7894736842)
     poopyrb.simulate()
     barrb.simulate()
+    button1.DrawUI(0.138,0.323,0.932,0.885,3.972,mouse_x,mouse_y)
     glFlush()
 
 
@@ -177,17 +174,18 @@ def backgroundColorChanger():
 
     bgColor = [bgColor[0] + redChange, bgColor[1] + greenChange, bgColor[2] + blueChange, 1]
 
-
 def PassiveMotionFunc(x, y):  # Moving Mouse Without Holding Button
     global mouse_x
     global mouse_y
     global screenwidth
     global screenheight
+    global mouseX
+    global mouseY
     mouse_x = x
     mouse_y = y
-    rick.move([((mouse_x - (glutGet(GLUT_WINDOW_WIDTH) / 2)) / (glutGet(GLUT_WINDOW_WIDTH) / 4)),
-               (((glutGet(GLUT_WINDOW_HEIGHT) / 2) - mouse_y) / (glutGet(GLUT_WINDOW_HEIGHT) / 2))
-                  ,rick.getPos()[2]],0.05,0.05)
+    #rick.move([((mouse_x - (glutGet(GLUT_WINDOW_WIDTH) / 2)) / (glutGet(GLUT_WINDOW_WIDTH) / 4)),
+     #          (((glutGet(GLUT_WINDOW_HEIGHT) / 2) - mouse_y) / (glutGet(GLUT_WINDOW_HEIGHT) / 2))
+      #            ,rick.getPos()[2]],0.05,0.05)
 
 
 def MotionFunc(x,y):  # Moving Mouse While Holding Button
@@ -252,12 +250,12 @@ def keyboard(key, x, y):
         poopysprite.FlipX()
     if key == b"g":
         poopysprite.FlipY()
-    if key == b"b":
-        barrb.AddForce(0.005,[0,1])
+    if key == b"e":
+        bar.RotateObject(45,0.1)
     if key == b"r":
         barrb.angularDrag = 0.005
-        barrb.AddForceAtPosition(0.003, [1, 0], [0.5, 1], [1, 90])
+        barrb.AddForceAtPosition(0.007, [50, 0], [0.5, 1], [1, 90])
     if key == b"q":
-        barrb.AddForceAtPosition(-0.003, [-1, 0], [0.5, 1], [1, 90])
+        barrb.AddForceAtPosition(-0.007, [50, 0], [0.5, 1], [1, 90])
 
 

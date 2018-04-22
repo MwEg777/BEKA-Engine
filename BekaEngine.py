@@ -7,7 +7,6 @@ import pygame
 from pygame import mixer
 
 GameObjects = list()
-
 class GameObject:
 
 
@@ -82,7 +81,6 @@ class GameObject:
         glTranslate(self.initialPosition[0], self.initialPosition[1] * 2,self.initialPosition[2])
 
     def Instantiate(self, positionArray = [0,0,0], scaleArray = [1,1,1],Angle = 0):
-        #self.position = positionArray
 
         self.scale = scaleArray
         glScale(scaleArray[0],scaleArray[1],scaleArray[2])
@@ -90,7 +88,6 @@ class GameObject:
 
         if self.RigidBody is not None:
             self.RigidBody.newPos =  [ positionArray[0] * 2,positionArray[1] * 2,positionArray[2] ]
-        #self.move(positionArray,0.01,0.01)
         self.setPos(positionArray)
         self.initialPosition = positionArray
         self.targetPosition = [self.getPos()[0], self.getPos()[1], self.getPos()[2]]
@@ -100,25 +97,27 @@ class GameObject:
 class GameImages:
 
 
-    def __init__(self,imagesCount = 1):
+    def __init__(self,imageNames):
         self.currentImage = 0
         self.imageCount = 0
-        self.images = glGenTextures(imagesCount)
-        glBindTexture(GL_TEXTURE_2D, self.images[0])
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-
-
-    def addImage(self,imageName):
-        glGenTextures(self.imageCount)
-        imgload = pygame.image.load(imageName)
-        img = pygame.image.tostring(imgload, "RGBA", 1)
-        width = imgload.get_width()
-        height = imgload.get_height()
-        glBindTexture(GL_TEXTURE_2D, self.images[self.imageCount - 1])  # Set this image in images array
-        glBindTexture(GL_TEXTURE_2D, self.images[self.currentImage])  # Retrieve last loaded image
-        glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img)
+        for imageName in imageNames:
+            self.imageCount += 1
+        self.images = glGenTextures(self.imageCount)
+        i = 0
+        for imageName in imageNames:
+            imgload = pygame.image.load(imageName)
+            img = pygame.image.tostring(imgload, "RGBA", 1)
+            width = imgload.get_width()
+            height = imgload.get_height()
+            glBindTexture(GL_TEXTURE_2D, self.images[i])  # Set this image in images array
+            glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+            glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+            glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img)
+            i += 1
         glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, self.images[0])
 
     def curImage(self,CurrentImage = 1):
         self.currentImage = CurrentImage
@@ -282,12 +281,13 @@ class SpriteRenderer:
             if self.currentVelocity > maxVelocity:
                 self.currentVelocity = maxVelocity
         else:
-            if math.fabs(distance) > maxVelocity/4: # first term is 0.0005 , second term is 0.0005
+            if math.fabs(distance) > maxVelocity: # first term is 0.0005 , second term is 0.0005
                 #print("Condition occured! math.fabs(distance) > maxVelocity/2")
                 self.currentVelocity = maxVelocity
             else:
                 #print("Condition NOT occured! math.fabs(distance) > maxVelocity/2")
-                self.currentVelocity = 0
+                self.currentVelocity = math.fabs(distance)
+
 
         #print("Current:", current, ", Target: ", realtarget)
         return self.currentVelocity
@@ -312,7 +312,7 @@ class RigidBody:
         self.gravityScale = 1
         self.useGravity = False
         self.angularDrag = 0.01
-        self.linearDrag = 0.05
+        self.linearDrag = 0.5
         self.mass = 1
         self.actvelocity = [0, 0]
         self.freezeRotation = False
@@ -344,13 +344,14 @@ class RigidBody:
         #       Where X     --> X of first vector ( equals 1 )
         #       Where Y     --> Y of first vector ( equals 0 )
         #       Where alpha --> Angle between two vectors ( self.gameObject.GetAngle() )
-        # newVect = [ 1 * math.cos(self.gameObject.getAngle()), -1 * math.sin(self.gameObject.getAngle()) ]        #Unline after test
+        newVect = [ 1 * math.cos(math.radians(self.gameObject.getAngle())), -1 * math.sin(math.radians(self.gameObject.getAngle())) ]        #Unline after test
         #   2/Use this equation after obtaining new vector ( newVect ) to get the angle between both vectors
-        # theta = math.acos( ( ( Direction[0] *  newVect[0] ) + ( Direction[1] * newVect[1] ) ) /  ( ( math.sqrt(( math.pow(Direction[0],2) + math.pow(Direction[1],2) )) )*( ( math.sqrt(( math.pow(newVect[0],2) + math.pow(newVect[1],2) )) ) ) ) )        #Unline after test
+        print("Vector of body rotation: ", newVect)
+        theta = math.acos( ( ( Direction[0] *  newVect[0] ) + ( Direction[1] * newVect[1] ) ) /  ( ( math.sqrt(( math.pow(Direction[0],2) + math.pow(Direction[1],2) )) )*( ( math.sqrt(( math.pow(newVect[0],2) + math.pow(newVect[1],2) )) ) ) ) )        #Unline after test
         #   3/Torque equals Force * r * sin theta
         # Test purpose : r = Test[0] and theta = Test[1]
         #r = Test[0]
-        theta = Test[1]
+        #theta = Test[1]
         torque = Force * r * math.sin(math.radians(theta))
         print("Torque = ", torque, ", math.sin(theta) = ", math.sin(math.radians(theta)), ", Theta = ", theta)
 
@@ -460,4 +461,28 @@ class RigidBody:
 
 
 
+class UI:
 
+    def __init__(self):
+        self.gameObject = GameObject()
+        self.spriteRenderer = SpriteRenderer(self.gameObject)
+        self.type = "button" #Types : "button" , "text"
+        self.HoldingMouse = False
+        self.Hovering = False
+    def Create(self, Type = "button"):
+        if Type is "button":
+            print("I just created a button")
+            self.gameObject.Instantiate()
+            self.gameObject.setScale([5,5,1])
+        elif Type is "text":
+            print("I just created a text")
+    def DrawUI(self,TextureCoordX1 = 0, TextureCoordX2 = 0, TextureCoordY1 = 0, TextureCoordY2 = 0, WidthToHeightRatio = 1, mouseX = 0, mouseY = 0):
+        if self.type is "button":
+            self.spriteRenderer.DrawSprite(TextureCoordX1, TextureCoordX2, TextureCoordY1, TextureCoordY2, WidthToHeightRatio)
+        if mouseX < 500 and mouseX > 300 and mouseY > 375 and mouseY < 426:
+            self.Hovering = True
+            self.spriteRenderer.setColor([0,0.2,0.5,1])
+        else:
+            self.Hovering = False
+            self.spriteRenderer.setColor([0.5, 0.8, 0.3, 1])
+        print("MouseY is: ", mouseY)
