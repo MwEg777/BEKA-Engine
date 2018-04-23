@@ -10,8 +10,7 @@ time_interval = 10  # try  1000 msec
 screenwidth = 800
 screenheight = 800
 rotation = 0
-char1 = UI()
-char2 = UI()
+button1 = UI()
 poopy = GameObject()
 poopy.setName("Poopy Butthole")
 rick = GameObject()
@@ -33,16 +32,15 @@ def init():
     #sound.play()
     global gameImages
     gameImages = GameImages(["bg.png", "pb.png", "Font1.png"])
-    char1.Create("char", "A")
-    char2.Create("char", "A")
     backGround.Instantiate([0,0,0],[1,1,1],0)
     backGround.setScale([20, 20, 1])
     poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
     poopy.smoothDamping = False
     rick.Instantiate()
     rick.setScale([3,3,1])
-
-    char1.setOnClick(buttonTest)
+    button1.Create("button")
+    button1.gameObject.move([0,0.25,0],1,1,False)
+    button1.setOnClick(buttonTest)
 
 
 
@@ -70,7 +68,9 @@ def draw():
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
     poopyrb.simulate()
     gameImages.curImage(3)
-    drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ",[-1,0.5,0],0.5)
+    drawText("TEST FOR TEXT",[-1,0.5,0],0.5)
+    gameImages.curImage(2)
+    button1.DrawUI(mouse_x,mouse_y,0.1375,0.325,0.885,0.93375,3.8461538461538463)
     glFlush()
 
 

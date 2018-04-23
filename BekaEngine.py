@@ -501,8 +501,8 @@ class UI:
 
         #print ("if", mouseYToWorld, "<",( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 2) * self.gameObject.getScale()[1])))
 
-        if mouseYToWorld > ( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 2) * self.gameObject.getScale()[1]))\
-                and mouseYToWorld < ( self.gameObject.getPos()[1] + ((self.spriteRenderer.height / 2) * self.gameObject.getScale()[1]))\
+        if mouseYToWorld > ( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 4) * self.gameObject.getScale()[1]))\
+                and mouseYToWorld < ( self.gameObject.getPos()[1] + ((self.spriteRenderer.height / 4) * self.gameObject.getScale()[1]))\
                 and mouseXToWorld > ( self.gameObject.getPos()[0] +((-self.spriteRenderer.density) * self.gameObject.getScale()[0]))\
                 and mouseXToWorld < ( self.gameObject.getPos()[0] +((self.spriteRenderer.density) * self.gameObject.getScale()[0])):
 
@@ -563,7 +563,8 @@ def charToSpriteDetails(char):
         'W': [0.826, 0.946, 0.451, 0.563, 0.625],
         'X': [0.180, 0.273, 0.329, 0.441, 0.625],
         'Y': [0.132, 0.216, 0.573, 0.695, 0.625],
-        'Z': [0.038, 0.137, 0.217, 0.324, 0.625]
+        'Z': [0.038, 0.137, 0.217, 0.324, 0.625],
+        ' ': [0.9, 1, 0, 0.107, 0.625]
 
     }.get(char,9)
 
