@@ -367,10 +367,10 @@ Example project included.
   
 		  - **mouseX**: Pointer's X position.
 		  - **mouseY**: Pointer's Y position.
-		  - **TextureCoordX1 **: Button sprite's start X point in the spritesheet.
-		  - **TextureCoordX2 **: Button sprite's end X point in the spritesheet.
-		  - **TextureCoordY1 **: Button sprite's start Y point in the spritesheet.
-		  - **TextureCoordY2 **: Button sprite's end Y point in the spritesheet.
+		  - **TextureCoordX1**: Button sprite's start X point in the spritesheet.
+		  - **TextureCoordX2**: Button sprite's end X point in the spritesheet.
+		  - **TextureCoordY1**: Button sprite's start Y point in the spritesheet.
+		  - **TextureCoordY2**: Button sprite's end Y point in the spritesheet.
 		  - **WidthToHeightRatio**: Button sprite's width to height ratio.
 
   	- **setOnClick**(fun): *function* 
