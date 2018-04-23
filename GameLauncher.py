@@ -28,7 +28,6 @@ def main():
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA)
     glutInitWindowSize(screenwidth , screenheight)
     glutCreateWindow(gameTitle)
-    glEnable(GL_BLEND)
     glutTimerFunc(time_interval, Timer, 1)
     glutDisplayFunc(draw)
     glutPassiveMotionFunc(PassiveMotionFunc)

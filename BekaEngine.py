@@ -2,11 +2,13 @@
 from OpenGL.GL import *
 import math
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 import time
 import pygame
 from pygame import mixer
 
 GameObjects = list()
+UIs = list()
 class GameObject:
 
 
@@ -18,8 +20,8 @@ class GameObject:
         self.angle = 0  # GameObject's Z rotation ( 2D rotation )
         self.targetAngle = 0  # The angle to which the GameObject is willing to rotate
         self.targetPosition = [0, 0, 0]  # The position which the GameObject is willing to reach
-        self.initialTranslationStepX = 0.01  # Maximum translation speed in X axis
-        self.initialTranslationStepY = 0.01  # Maximum translation speed in Y axis
+        self.initialTranslationStepX = 1  # Maximum translation speed in X axis
+        self.initialTranslationStepY = 1  # Maximum translation speed in Y axis
         self.translationStepX = 0.01  # Current translation speed in X axis
         self.translationStepY = 0.01  # Current translation speed in Y axis
         self.smoothDamping = True
@@ -102,6 +104,7 @@ class GameImages:
         self.imageCount = 0
         for imageName in imageNames:
             self.imageCount += 1
+        print("images: ", self.imageCount)
         self.images = glGenTextures(self.imageCount)
         i = 0
         for imageName in imageNames:
@@ -469,20 +472,114 @@ class UI:
         self.type = "button" #Types : "button" , "text"
         self.HoldingMouse = False
         self.Hovering = False
-    def Create(self, Type = "button"):
+        self.state = 1
+        self.normalColor = [1,1,1,1]
+        self.hoverColor = [0.75,0.75,0.75,1]
+        self.pressedColor = [0.25,0.25,0.5,1]
+        self.Holding = False
+        self.onClickFunction = None
+        self.char = "A"
+        UIs.append(self)
+        self.x = 0
+        self.y = 0
+    def Create(self, Type = "button", Letter = 'A'):
         if Type is "button":
-            print("I just created a button")
-            self.gameObject.Instantiate()
+            self.type = "button"
+            self.gameObject.Instantiate([0,0,0],[5,5,1],0)
+            self.gameObject.smoothDamping = False
             self.gameObject.setScale([5,5,1])
-        elif Type is "text":
-            print("I just created a text")
-    def DrawUI(self,TextureCoordX1 = 0, TextureCoordX2 = 0, TextureCoordY1 = 0, TextureCoordY2 = 0, WidthToHeightRatio = 1, mouseX = 0, mouseY = 0):
-        if self.type is "button":
-            self.spriteRenderer.DrawSprite(TextureCoordX1, TextureCoordX2, TextureCoordY1, TextureCoordY2, WidthToHeightRatio)
-        if mouseX < 500 and mouseX > 300 and mouseY > 375 and mouseY < 426:
+        elif Type is "char":
+            self.type = "char"
+            self.gameObject.Instantiate([0,0,0])
+            self.gameObject.smoothDamping = False
+            self.char = Letter
+    def DrawUI(self, mouseX = 0, mouseY = 0, TextureCoordX1 = 0, TextureCoordX2 = 0, TextureCoordY1 = 0, TextureCoordY2 = 0, WidthToHeightRatio = 1):
+
+        arrayToDraw = []
+        mouseYToWorld = (((glutGet(GLUT_WINDOW_HEIGHT) / 2) - mouseY) / (glutGet(GLUT_WINDOW_HEIGHT) / 2)) / 2
+        mouseXToWorld = ((mouseX - (glutGet(GLUT_WINDOW_WIDTH) / 2)) / (glutGet(GLUT_WINDOW_WIDTH) / 4))
+
+        #print ("if", mouseYToWorld, "<",( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 2) * self.gameObject.getScale()[1])))
+
+        if mouseYToWorld > ( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 2) * self.gameObject.getScale()[1]))\
+                and mouseYToWorld < ( self.gameObject.getPos()[1] + ((self.spriteRenderer.height / 2) * self.gameObject.getScale()[1]))\
+                and mouseXToWorld > ( self.gameObject.getPos()[0] +((-self.spriteRenderer.density) * self.gameObject.getScale()[0]))\
+                and mouseXToWorld < ( self.gameObject.getPos()[0] +((self.spriteRenderer.density) * self.gameObject.getScale()[0])):
+
             self.Hovering = True
-            self.spriteRenderer.setColor([0,0.2,0.5,1])
         else:
             self.Hovering = False
-            self.spriteRenderer.setColor([0.5, 0.8, 0.3, 1])
-        print("MouseY is: ", mouseY)
+
+        if self.type is "button":
+            arrayToDraw = [TextureCoordX1, TextureCoordX2, TextureCoordY1, TextureCoordY2, WidthToHeightRatio]
+            if self.Hovering:
+                if self.state == 0:
+                    self.spriteRenderer.setColor(self.pressedColor)
+                    self.Holding = True
+                else:
+                    self.spriteRenderer.setColor(self.hoverColor)
+                    if self.Holding:
+                        self.onClick(self.onClickFunction)
+                        self.Holding = False
+            else:
+                self.spriteRenderer.setColor(self.normalColor)
+        elif self.type is "char":
+            charArray = charToSpriteDetails(self.char)
+            arrayToDraw = [charArray[0], charArray[1], charArray[2], charArray[3],
+                                           charArray[4]]
+        self.spriteRenderer.DrawSprite(arrayToDraw[0], arrayToDraw[1], arrayToDraw[2], arrayToDraw[3],
+                                       arrayToDraw[4])
+    def onClick(self,fun):
+        fun()
+    def setOnClick(self,fun):
+        self.onClickFunction = fun
+
+def charToSpriteDetails(char):
+    return {
+        'a': 1,
+        'b': 2,
+        'A': [0.223,0.298,0.575,0.695,0.625],
+        'B': [0.53, 0.615, 0.578, 0.695, 0.625],
+        'C': [0.243, 0.342, 0.221, 0.324, 0.625],
+        'D': [0.213, 0.301, 0.449, 0.565, 0.625],
+        'E': [0.387, 0.477, 0.448, 0.565, 0.625],
+        'F': [0.118, 0.207, 0.451, 0.565, 0.625],
+        'G': [0.556, 0.662, 0.452, 0.565, 0.625],
+        'H': [0.303, 0.382, 0.572, 0.695, 0.625],
+        'I': [0.745, 0.821, 0.451, 0.565, 0.625],
+        'J': [0.142, 0.236, 0.218, 0.323, 0.625],
+        'K': [0.778, 0.872, 0.575, 0.695, 0.625],
+        'L': [0.666, 0.741, 0.451, 0.565, 0.625],
+        'M': [0.002, 0.116, 0.447, 0.563, 0.625],
+        'N': [0.713, 0.810, 0.334, 0.441, 0.625],
+        'O': [0.350, 0.463, 0.332, 0.441, 0.625],
+        'P': [0.467, 0.540, 0.334, 0.442, 0.625],
+        'Q': [0.877, 0.982, 0.577, 0.695, 0.625],
+        'R': [0.278, 0.345, 0.332, 0.441, 0.625],
+        'S': [0.093, 0.176, 0.328, 0.442, 0.625],
+        'T': [0.545, 0.638, 0.333, 0.439, 0.625],
+        'U': [0.002, 0.090, 0.329, 0.441, 0.625],
+        'V': [0.697, 0.773, 0.576, 0.695, 0.625],
+        'W': [0.826, 0.946, 0.451, 0.563, 0.625],
+        'X': [0.180, 0.273, 0.329, 0.441, 0.625],
+        'Y': [0.132, 0.216, 0.573, 0.695, 0.625],
+        'Z': [0.038, 0.137, 0.217, 0.324, 0.625]
+
+    }.get(char,9)
+
+def drawText(text = "ABABAABBBAAAAAA", textPosition = [0,0,0], textSize = 1):
+    textX = 0
+    for char in list(text):
+        c = UI()
+        c.Create("char",char)
+        c.gameObject.move([textPosition[0] + textX,textPosition[1],textPosition[2]], 1, 1, False)
+        c.gameObject.setScale([textSize,textSize,1])
+        c.DrawUI()
+        textX += c.spriteRenderer.density * 2 * textSize
+
+def drawChar(char = "A", charPosition = [0,0,0], charSize = 1):
+    c = UI()
+    c.Create("char",char)
+    c.gameObject.move([charPosition[0],charPosition[1],charPosition[2]], 1, 1, False)
+    c.gameObject.setScale([charSize,charSize,1])
+    c.DrawUI()
