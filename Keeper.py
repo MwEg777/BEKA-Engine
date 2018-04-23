@@ -3,8 +3,8 @@ from pygame import mixer
 from BekaEngine import *
 import random
 from OpenGL.GLUT import *
+import numpy
 import time
-x = 0
 time_interval = 10  # try  1000 msec
 
 screenwidth = 800
@@ -43,13 +43,11 @@ def init():
     button1.setOnClick(buttonTest)
 
 
-
-
     
 
 bgColor = [0.1,0.1,0.1,1]
 bgChanger = [0,0,0,0,0,0]
-def draw():
+def Update():
     global rotation
     global poopy
     global barsprite
@@ -68,7 +66,11 @@ def draw():
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
     poopyrb.simulate()
     gameImages.curImage(3)
-    drawText("TEST FOR TEXT",[-1,0.5,0],0.5)
+    drawText("abcdefghijklmnopqrstuvwxyz",[-1,0.5,0],0.5)
+    drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5,[0.5,0,0.5,1])
+    drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", [-1, 0.75, 0], 0.5,[0.5,0.5,0,1])
+    drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5,[0,0.5,0.5,1])
+    drawText("Score:9005", [-1.75, 0.9, 0], 0.5,[0,0.5,0.5,1])  #Score text
     gameImages.curImage(2)
     button1.DrawUI(mouse_x,mouse_y,0.1375,0.325,0.885,0.93375,3.8461538461538463)
     glFlush()

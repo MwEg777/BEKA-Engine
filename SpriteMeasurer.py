@@ -14,7 +14,7 @@ def init():
     glClearColor(1, 1, 1, 0.5)
     glMatrixMode(GL_MODELVIEW)
     global gameImages
-    gameImages = GameImages(["SM.PNG","SM.PNG"])
+    gameImages = GameImages(["SM3.PNG","SM.PNG"])
     backGround.Instantiate([0,0,0],[1,1,1],0)
     backGround.setScale([20, 20, 1])
 
@@ -53,8 +53,10 @@ def MouseMotion(button,state,x,y): #Triggers with both MouseClick Down or Up
         x2 = x
         y2 = y
         ratio = (math.fabs(x1 - x2) / math.fabs(y1 - y2))
-        print("X1: ", x1 / glutGet(GLUT_WINDOW_WIDTH), ", X2: ", x2 / glutGet(GLUT_WINDOW_WIDTH), ", Y1: ", 1 - (y1  / (glutGet(GLUT_WINDOW_HEIGHT))),
-              ", Y2: ",  1 - (y2  / (glutGet(GLUT_WINDOW_HEIGHT))), ", WidthToHeightRatio: ", ratio)
+        #print("X1: ", x1 / glutGet(GLUT_WINDOW_WIDTH), ", X2: ", x2 / glutGet(GLUT_WINDOW_WIDTH), ", Y1: ", 1 - (y1  / (glutGet(GLUT_WINDOW_HEIGHT))),
+        #      ", Y2: ",  1 - (y2  / (glutGet(GLUT_WINDOW_HEIGHT))), ", WidthToHeightRatio: ", ratio)
+
+        print("[", x1 / glutGet(GLUT_WINDOW_WIDTH),",",x2 / glutGet(GLUT_WINDOW_WIDTH),",", 1 - (y1  / (glutGet(GLUT_WINDOW_HEIGHT))),",",  1 - (y2  / (glutGet(GLUT_WINDOW_HEIGHT))),",",ratio,"]")
 
 
 def MotionFunc(x,y):  # Mouse While Holding Button

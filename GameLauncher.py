@@ -17,7 +17,7 @@ gameTitle = b"BEKA Engine"
 
 def Timer(v):
 
-    draw()
+    Update()
 
     glutTimerFunc(time_interval, Timer, 1)
 
@@ -29,7 +29,7 @@ def main():
     glutInitWindowSize(screenwidth , screenheight)
     glutCreateWindow(gameTitle)
     glutTimerFunc(time_interval, Timer, 1)
-    glutDisplayFunc(draw)
+    glutDisplayFunc(Update)
     glutPassiveMotionFunc(PassiveMotionFunc)
     glutMotionFunc(MotionFunc)
     glutMouseFunc(MouseMotion)
