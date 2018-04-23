@@ -240,6 +240,17 @@ Example project included.
 		  - **Force**: The amount of force to be added to the Rigidbody.
 		  - **Direction**: A 2-element array containing the direction of the applied force in X and Y axis in order.
 
+  	- **AddForceAtPosition**(Force = 1.0, ForcePoint = [0,0], Direction = [1,0]): *function* 
+  
+		  A function that adds a force to the Rigidbody	using a value and a vector.
+  
+		- Parameters: 
+  
+		  - **Force**: The amount of force to be added to the Rigidbody.
+		  - **ForcePoint**: A 2-element array containing the point in which the force should be added, in world coordinates.
+		  - **Direction**: A 2-element array containing the direction of the applied force in X and Y axis in order.
+
+
   	- **AddTorque**(Force = 1.0): *function* 
   
 		  A function that adds a torque to the Rigidbody. Rotates it anti-clockwise.
@@ -259,7 +270,11 @@ Example project included.
 ● **GameImages**: A class that enables you to use image files in the game, mostly to use with Sprites.
 
   - Properties and Methods:
-	  -	
+ 
+	  - **imageNames**:  *string[]* 
+  
+			An array of string containing the names of the image files you wish to import to your game, followed by extension. Eg: ["Beka.png", "Game.jpg"] 
+			
   
 	  - **currentImage**:  *int* 
   
@@ -268,14 +283,6 @@ Example project included.
 	  - **imageCount**:  *int* 
   
 			An integer value that determines the amount of image files to load by the game engine.
-
-  	- **addImage**(imageName): *function* 
-  
-		  A function that adds an image file to the images loaded by the game engine.
-  
-		- Parameters: 
-  
-		  - **imageName**: A string that provides the name of the image file followed by the file extension. Eg: Beka.png, Game.jpg, ...
 
   	- **curImage**(CurrentImage = 1): *function* 
   
@@ -288,3 +295,138 @@ Example project included.
   	- **getImageCount**(): *function* 
   
 		  A function that returns the amount of images that are loaded by the game engine.
+
+
+----------------
+
+● **UI**: A base class for UI Elements, such as Buttons and Texts.
+
+  - Properties and Methods:
+ 
+	  - **gameObject**:  *GameObject* 
+  
+			The GameObject that holds this UI Element. 
+			
+  
+	  - **spriteRenderer**:  *SpriteRenderer* 
+  
+			The SpriteRenderer attached to this UI Element, Responsible for rendering it. 
+			
+	  - **type**:  *string* 
+  
+			A string containing the UI Element's type, can be "button" or "char".
+
+
+	  - **Hovering**:  *bool* 
+  
+			A bool that determines whether mouse pointer is hovering over the button.
+
+	  - **normalColor**:  *int[]* 
+  
+			A 4-element array containing a button's normal color, while it's neither hovered over nor pressed.
+
+
+	  - **hoverColor**:  *int[]* 
+  
+			A 4-element array containing a button's color while it's hovered over.
+
+
+	  - **pressedColor**:  *int[]* 
+  
+			A 4-element array containing a button's color while it's pressed.
+
+
+	  - **onClickFunction**:  *function* 
+  
+			The function that should be called when a button is clicked.
+
+
+	  - **type**:  *string* 
+  
+			A string containing the UI Element's type, can be "button" or "char".
+
+
+  	- **char**: *string* 
+  
+		  A 1-character string that contains the UI Text's character.
+  
+  	- **Create**(Type = "button", Letter = 'A'): *function* 
+  
+		  A function that creates a UI Element.
+		  
+		- Parameters: 
+  
+		  - **Type**: A string that determines UI Element's type.
+		  - **Letter**: A string character that contains the UI character.
+
+  	- **DrawUI**(mouseX = 0, mouseY = 0, TextureCoordX1 = 0, TextureCoordX2 = 0, TextureCoordY1 = 0, TextureCoordY2 = 0, WidthToHeightRatio = 1): *function* 
+  
+		  A function that draws UI elements. must be constantly called in game's draw function.
+		  
+		- Parameters: 
+  
+		  - **mouseX**: Pointer's X position.
+		  - **mouseY**: Pointer's Y position.
+		  - **TextureCoordX1 **: Button sprite's start X point in the spritesheet.
+		  - **TextureCoordX2 **: Button sprite's end X point in the spritesheet.
+		  - **TextureCoordY1 **: Button sprite's start Y point in the spritesheet.
+		  - **TextureCoordY2 **: Button sprite's end Y point in the spritesheet.
+		  - **WidthToHeightRatio**: Button sprite's width to height ratio.
+
+  	- **setOnClick**(fun): *function* 
+  
+		  A function that sets the function that should be called whenever UI button is clicked.
+		  
+		- Parameters: 
+  
+		  - **fun**: The function that should be called when UI button is clicked.
+
+
+# **Variables**:
+
+
+  - **GameObjects**: *list*
+		---  A list that contains all active GameObject instances in the game.
+
+  - **UIs**: *list*
+		---  A list that contains all active UI instances in the game.
+
+
+# **Functions**:
+
+
+  - **drawText**(text = "text", textPosition = [0,0,0], textSize = 1, textColor = [1,1,1,1]): *function*
+
+		A function that directly draws a text on the screen, using a custom font.
+
+	- Parameters:
+		- **text**: A string that contains the text that should be shown on screen.
+		- **textPosition**: A 3-element array that contains the text's position.
+		- **textSize**: A float that sets text size.
+		- **textColor**: A 4-element array containing text's color.
+
+  - **drawChar**(char = "A", charPosition = [0,0,0], charSize = 1, charColor = [1,1,1,1]): *function*
+
+		A function that directly draws a text on the screen, using a custom font.
+
+	- Parameters:
+		- **char**: A string that contains the character that should be shown on screen.
+		- **charPosition**: A 3-element array that contains the char's position.
+		- **charSize**: A float that sets charsize.
+		- **charColor**: A 4-element array containing char color.
+
+
+
+
+---
+---
+---
+---
+- **Notes**:
+	-  Font included is Rick and Morty's Calligraphr-Regular font, I do NOT own it. If you wish to use this engine for non-personal use, make sure to contact font owner and ask for permission.
+	- Included images and sounds are only for test purposes, no copyright infringement intended. do NOT use for non-personal purposes before contacting media owners and asking them for permission. Otherwise, it is your responsibility.
+---
+---
+---
+---
+
