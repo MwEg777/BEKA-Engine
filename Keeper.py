@@ -6,14 +6,8 @@ from OpenGL.GLUT import *
 import numpy
 import time
 
-
-time_interval = 10  # try  1000 msec
 mouse_x = 0
 mouse_y = 0
-
-screenwidth = 800
-screenheight = 800
-
 
 button1 = UI()  # UI Class has GameObject Properties plus additional ones, such as (hover detection)
 
@@ -51,25 +45,28 @@ def init():
     poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
     poopy.smoothDamping = False
     rick.Instantiate()  # Depends on mouse movement, no need to enter parameters.
-    rick.setScale([3,3,1])
+    rick.setScale([3, 3, 1])
 
     button1.Create("button")
-    button1.gameObject.move([0,0.25,0],1,1,False)
+    button1.gameObject.move([0, 0.25, 0], 1, 1, False)
     button1.setOnClick(buttonTest)  # What the button does - calls the function.
+
 
 redChange = 0
 greenChange = 0
-blueChange = 0#--
+blueChange = 0  # --
 redTarget = 0
 greenTarget = 0
-blueTarget = 0#--
+blueTarget = 0  # --
 redCurrent = 0
 greenCurrent = 0
-blueCurrent = 0#--
+blueCurrent = 0  # --
 redFlag = True
 greenFlag = True
 blueFlag = True
-bgColor = [0.1,0.1,0.1,1]   # Colors Initialization for the next function vvv (Expand)
+bgColor = [0.1, 0.1, 0.1, 1]  # Colors Initialization for the next function vvv (Expand)
+
+
 def backgroundColorChanger():
     global redChange
     global greenChange
@@ -85,10 +82,9 @@ def backgroundColorChanger():
     global greenFlag
     global blueFlag
 
-
     if redFlag:
-        redChange = random.uniform(0.0001,0.001)  # Generates a "speed" for which the color changes.
-        redTarget = random.uniform(0,1)           # Generates a degree of the color: RED
+        redChange = random.uniform(0.0001, 0.001)  # Generates a "speed" for which the color changes.
+        redTarget = random.uniform(0, 1)  # Generates a degree of the color: RED
         if redTarget < redCurrent:
             redChange *= -1
         redFlag = False
@@ -97,7 +93,7 @@ def backgroundColorChanger():
         redFlag = True
 
     if greenFlag:
-        greenChange = random.uniform(0.0001,0.001)
+        greenChange = random.uniform(0.0001, 0.001)
         greenTarget = random.uniform(0, 1)
         if greenTarget < greenCurrent:
             greenChange *= -1
@@ -107,7 +103,7 @@ def backgroundColorChanger():
         greenFlag = True
 
     if blueFlag:
-        blueChange = random.uniform(0.0001,0.001)
+        blueChange = random.uniform(0.0001, 0.001)
         blueTarget = random.uniform(0, 1)
         if blueTarget < blueCurrent:
             blueChange *= -1
@@ -128,20 +124,21 @@ def PassiveMotionFunc(x, y):
 
     mouse_x = x
     mouse_y = y
-    rick.move([ mouseXToWorld, mouseYToWorld, rick.getPos()[2]],0.05,0.05)  # Pos, SpeedX, SpeedY
+    rick.move([mouseXToWorld, mouseYToWorld, rick.getPos()[2]], 0.05, 0.05)  # Pos, SpeedX, SpeedY
 
 
 def buttonTest():
     print("Just clicked my button!")
 
-def MotionFunc(x,y):  # Moving Mouse While Holding Button
+
+def MotionFunc(x, y):  # Moving Mouse While Holding Button
     global mouse_x
     global mouse_y
     mouse_x = x
     mouse_y = y
 
 
-def MouseMotion(button,state,x,y):  # Triggers with both MouseClick Down or Up
+def MouseMotion(button, state, x, y):  # Triggers with both MouseClick Down or Up
     print("State changed! state now is", state)
     for ui in UIs:
         if ui.type == "button":
@@ -154,7 +151,7 @@ def arrow_key(key, x, y):
 
 def keyboard(key, x, y):
     if key == b"d":
-        poopyrb.AddForce(0.005,[1,0])
+        poopyrb.AddForce(0.005, [1, 0])
     elif key == b"a":
         poopyrb.AddForce(0.005, [-1, 0])
     elif key == b"w":
@@ -164,7 +161,8 @@ def keyboard(key, x, y):
     if key == b"f":
         poopysprite.FlipX()
     if key == b"g":
-        poopysprite.FlipY() # Mouse and Keyboard Functions
+        poopysprite.FlipY()  # Mouse and Keyboard Functions
+
 
 def Update():
     global rotation
@@ -182,19 +180,20 @@ def Update():
     backgroundColorChanger()
     backGroundSprite.setColor(bgColor)
 
-    gameImages.curImage(2) # SpritesSHEET
+    gameImages.curImage(2)  # SpritesSHEET
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
-    poopyrb.simulate() # Simulate: Simulate physics for the rigid body every frame.
+    poopyrb.simulate()  # Simulate: Simulate physics for the rigid body every frame.
 
-    gameImages.curImage(3) #Fonts
-    drawText("abcdefghijklmnopqrstuvwxyz",[-1,0.5,0],0.5)
-    drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5,[0.5,0,0.5,1])   # (Text, Position, Size, Color)
-    drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", [-1, 0.75, 0], 0.5,[0.5,0.5,0,1])
-    drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5,[0,0.5,0.5,1])
-    drawText("Score:9005", [-1.75, 0.9, 0], 0.5,[0,0.5,0.5,1])  #Score text
+    gameImages.curImage(3)  # Fonts
+    drawText("abcdefghijklmnopqrstuvwxyz", [-1, 0.5, 0], 0.5)
+    drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5, [0.5, 0, 0.5, 1])  # (Text, Position, Size, Color)
+    drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", [-1, 0.75, 0], 0.5, [0.5, 0.5, 0, 1])
+    drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5, [0, 0.5, 0.5, 1])
+    drawText("Score:9005", [-1.75, 0.9, 0], 0.5, [0, 0.5, 0.5, 1])  # Score text
 
     gameImages.curImage(2)
-    button1.DrawUI(mouse_x,mouse_y,0.1375,0.325,0.885,0.93375,3.8461538461538463)   # Mouse location for detection, x1, x2, y1, y2, aspect ratio
+    button1.DrawUI(mouse_x, mouse_y, 0.1375, 0.325, 0.885, 0.93375,
+                   3.8461538461538463)  # Mouse location for detection, x1, x2, y1, y2, aspect ratio
 
     glFlush()
