@@ -1,0 +1,5 @@
+lasergun: smashes obstacles being pointed at
+neutrino bomb: collect the three collectables to have the nuetrino bomb, use at will
+		>>when used it smashes all obstacles currently on screen, and waits 1 second before new ones reapear/
+kalaxian crystals: expands the shield for 5 seconds
+penpjuice OR yummyyum's : adds a protective sheild on poopy himself for 5 seconds
