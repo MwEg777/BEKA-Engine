@@ -6,7 +6,6 @@ from \
 from OpenGL.GLUT import *
 
 # Setup Variables
-time_interval = 10  # Like a frame rate - time interval for each frame update rate
 screenwidth = 800
 screenheight = 800
 gameTitle = b"BEKA Engine"
