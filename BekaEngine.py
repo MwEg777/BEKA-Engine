@@ -104,7 +104,7 @@ class GameImages:
         self.imageCount = 0
         for imageName in imageNames:
             self.imageCount += 1
-        print("images: ", self.imageCount)
+        #print("images: ", self.imageCount)
         self.images = glGenTextures(self.imageCount)
         i = 0
         for imageName in imageNames:
