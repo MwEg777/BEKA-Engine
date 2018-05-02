@@ -15,18 +15,12 @@ button1 = UI()  # UI Class has GameObject Properties plus additional ones, such 
 poopy = GameObject()
 poopy.setName("Poopy Butthole")
 poopysprite = SpriteRenderer(poopy)
-poopyrb = RigidBody(poopy)
-poopycol = Collider(poopy,"box")
+poopycol = Collider(poopy,"circle", 0.05)
 
 rick = GameObject()
 rick.setName("Rick")
 ricksprite = SpriteRenderer(rick)
 rickcol = Collider(rick,"circle")
-
-rick2 = GameObject()
-rick2.setName("Rick2")
-rick2sprite = SpriteRenderer(rick2)
-rick2col = Collider(rick2,"circle")
 
 backGround = GameObject()
 backGround.setName("Background")
@@ -50,17 +44,16 @@ def init():
 
     backGround.Instantiate([0, 0, 0], [20, 20, 1], 0)  # Position, Scale, Rotation
 
-    poopy.Instantiate([0, 0, 0], [1, 1, 1], 0)
+    poopy.Instantiate([0, -0.7, 0], [1, 1, 1], 0)
     poopy.smoothDamping = False
+
     rick.Instantiate()  # Depends on mouse movement, no need to enter parameters.
     rick.setScale([3, 3, 1])
     rickcol.radius = (rick.SpriteRenderer.density / 2) * rick.getScale()[0]
-    rick2.Instantiate([0,0.5,0])
-    rick2.setScale([5, 5, 1])
-    rick2col.radius = (rick2.SpriteRenderer.density / 2) * rick2.getScale()[0]
+
 
     button1.Create("button")
-    button1.gameObject.move([0, 0.25, 0], 1, 1, False)
+    button1.gameObject.move([0, -0.4, 0], 1, 1, False)
     button1.setOnClick(buttonTest)  # What the button does - calls the function.
 
 
@@ -162,14 +155,14 @@ def arrow_key(key, x, y):
 
 
 def keyboard(key, x, y):
-    if key == b"d":
-        poopyrb.AddForce(0.005, [1, 0])
-    elif key == b"a":
-        poopyrb.AddForce(0.005, [-1, 0])
-    elif key == b"w":
-        poopyrb.AddForce(0.01, [0, 1])
-    elif key == b"s":
-        poopyrb.AddForce(0.005, [0, -1])
+    #if key == b"d":
+     #   poopyrb.AddForce(0.005, [1, 0])
+    #elif key == b"a":
+     #   poopyrb.AddForce(0.005, [-1, 0])
+    #elif key == b"w":
+     #   poopyrb.AddForce(0.01, [0, 1])
+    #elif key == b"s":
+     #   poopyrb.AddForce(0.005, [0, -1])
     if key == b"f":
         poopysprite.FlipX()
     if key == b"g":
@@ -194,28 +187,30 @@ def Update():
 
     gameImages.curImage(2)  # SpritesSHEET
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
-    rick2sprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
-    poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
-    poopyrb.simulate()  # Simulate: Simulate physics for the rigid body every frame.
     rickcol.checkCollision()
+    #----
+    poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
+    #----
+
 
     gameImages.curImage(3)  # Fonts
-    #drawText("abcdefghijklmnopqrstuvwxyz", [-1, 0.5, 0], 0.5)
-    #drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5, [0.5, 0, 0.5, 1])  # (Text, Position, Size, Color)
-    drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", [-1, 0.75, 0], 0.5, [0.5, 0.5, 0, 1])
-    #drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5, [0, 0.5, 0.5, 1])
-    #drawText("Score:9005", [-1.75, 0.9, 0], 0.5, [0, 0.5, 0.5, 1])  # Score text
+    drawText("Score: ", [-1.72, 0.9, 0], 0.5, [0.9, 0.2, 0.1, 1])   # (Text, Pos, Size, Color)
+
 
     gameImages.curImage(2)
     button1.DrawUI(mouse_x, mouse_y, 0.1375, 0.325, 0.885, 0.93375,
                    3.8461538461538463)  # Mouse location for detection, x1, x2, y1, y2, aspect ratio
 
     # ------------------------------------Powerups Generation Part------------------------------------------------------
-
-    #a = generatePowerUp(2, 0)
-    #if a is not None:
+    a = generatePowerUp(0, 1)
+    if a is not None:
+        pass
         #print("a:", a)   # you can add parameters: (time rate for generation = 10, score rate for generation = 0)
-        #checkCollectibles()
+        checkCollectibles()
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------Collision Detection Part------------------------------------------------------
+
 
     # ------------------------------------------------------------------------------------------------------------------
 
