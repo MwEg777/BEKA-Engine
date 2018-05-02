@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 screenwidth = 800
 screenheight = 800
 gameTitle = b"BEKA Engine"
-
+time_interval = 10
 
 def Timer(v):
     Update()

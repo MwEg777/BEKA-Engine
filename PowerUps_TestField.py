@@ -1,5 +1,5 @@
-from Keeper import time_interval
 from random import randint
+
 # Every one second, 100 frames will pass, the game is on 100 FPS
 '''
 Ways of generating a powerup:
@@ -9,7 +9,8 @@ Ways of generating a powerup:
 Types of powerups: *TBListed* (done, check text file "what each does")
 What a powerup does: the file RETURNS a FLAG with a certain CODE to be handled by the engine or the game itself.
 '''
-currentScore = 0                    # !!!!!!!!DUMY SCORE - DELETE when score system is done
+time_interval = 10
+currentScore = 0                    # !!!!!!!!DUMMY SCORE - DELETE when score system is done
 currentTime = 0                     # Essential for PowerUp generation calculations
 everyFrame = time_interval/1000     # Essential for PowerUp generation calculations
 collectedPowerUps = [0, 0, 0]       # To Be Used generatePowerUps function
@@ -29,7 +30,7 @@ def stopwatch():
 
 
 def dummyScoreCounter():
-    global currentScore  # DUMY SCORE - DELETE WHEN SCORE SYSTEM IS DONE
+    global currentScore  # DUMMY SCORE - DELETE WHEN SCORE SYSTEM IS DONE
     currentScore += 1
 
 
@@ -99,7 +100,7 @@ def generatePowerUp(t=10, s=0):  # Switches
 
 
 def checkCollectibles():    # Hookup with sprites
-    print(collectedPowerUps)
+    print("collectedPowerUps: ",collectedPowerUps)
 
 
 def checkIfCollected(someColliderFunction, generatePowerUp):

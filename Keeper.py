@@ -3,10 +3,9 @@ from pygame import mixer
 from BekaEngine import *
 import random
 from OpenGL.GLUT import *
+from PowerUps_TestField import generatePowerUp, checkCollectibles
 import numpy
 import time
-
-time_interval = 10                  # Essential to be in this file instead of GameLauncher File for PowerUps to work.
 
 mouse_x = 0
 mouse_y = 0
@@ -17,10 +16,17 @@ poopy = GameObject()
 poopy.setName("Poopy Butthole")
 poopysprite = SpriteRenderer(poopy)
 poopyrb = RigidBody(poopy)
+poopycol = Collider(poopy,"box")
 
 rick = GameObject()
 rick.setName("Rick")
 ricksprite = SpriteRenderer(rick)
+rickcol = Collider(rick,"circle")
+
+rick2 = GameObject()
+rick2.setName("Rick2")
+rick2sprite = SpriteRenderer(rick2)
+rick2col = Collider(rick2,"circle")
 
 backGround = GameObject()
 backGround.setName("Background")
@@ -48,6 +54,10 @@ def init():
     poopy.smoothDamping = False
     rick.Instantiate()  # Depends on mouse movement, no need to enter parameters.
     rick.setScale([3, 3, 1])
+    rickcol.radius = (rick.SpriteRenderer.density / 2) * rick.getScale()[0]
+    rick2.Instantiate([0,0.5,0])
+    rick2.setScale([5, 5, 1])
+    rick2col.radius = (rick2.SpriteRenderer.density / 2) * rick2.getScale()[0]
 
     button1.Create("button")
     button1.gameObject.move([0, 0.25, 0], 1, 1, False)
@@ -126,7 +136,7 @@ def PassiveMotionFunc(x, y):
 
     mouse_x = x
     mouse_y = y
-    rick.move([mouseXToWorld, mouseYToWorld, rick.getPos()[2]], 0.05, 0.05)  # Pos, SpeedX, SpeedY
+    rick.move([mouseXToWorld, mouseYToWorld, rick.getPos()[2]], 0.1, 0.05)  # Pos, SpeedX, SpeedY
 
 
 def buttonTest():
@@ -184,26 +194,29 @@ def Update():
 
     gameImages.curImage(2)  # SpritesSHEET
     ricksprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
+    rick2sprite.DrawSprite(0.0478515625, 0.126953125, 0.99365234375, 0.91455078125, 1)
     poopysprite.DrawSprite(0, 0.0317, 0.908203125, 1, 0.34574468085106382978723404255319)
     poopyrb.simulate()  # Simulate: Simulate physics for the rigid body every frame.
+    rickcol.checkCollision()
 
     gameImages.curImage(3)  # Fonts
-    drawText("abcdefghijklmnopqrstuvwxyz", [-1, 0.5, 0], 0.5)
-    drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5, [0.5, 0, 0.5, 1])  # (Text, Position, Size, Color)
+    #drawText("abcdefghijklmnopqrstuvwxyz", [-1, 0.5, 0], 0.5)
+    #drawText("AbCdEfGhIjKlMnOpQrStUvWxYz", [-1, 0.625, 0], 0.5, [0.5, 0, 0.5, 1])  # (Text, Position, Size, Color)
     drawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", [-1, 0.75, 0], 0.5, [0.5, 0.5, 0, 1])
-    drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5, [0, 0.5, 0.5, 1])
-    drawText("Score:9005", [-1.75, 0.9, 0], 0.5, [0, 0.5, 0.5, 1])  # Score text
+    #drawText("WHAT IS YOUR NAME?", [-1, -0.25, 0], 0.5, [0, 0.5, 0.5, 1])
+    #drawText("Score:9005", [-1.75, 0.9, 0], 0.5, [0, 0.5, 0.5, 1])  # Score text
 
     gameImages.curImage(2)
     button1.DrawUI(mouse_x, mouse_y, 0.1375, 0.325, 0.885, 0.93375,
                    3.8461538461538463)  # Mouse location for detection, x1, x2, y1, y2, aspect ratio
+
     # ------------------------------------Powerups Generation Part------------------------------------------------------
-    """Always importing is bad for optimization, gonna try sending variables in line 9 - 11 in a different way."""
-    #from PowerUps_TestField import generatePowerUp, checkCollectibles
+
     #a = generatePowerUp(2, 0)
     #if a is not None:
-    #    print(a)   # you can add parameters: (time rate for generation = 10, score rate for generation = 0)
-    #    checkCollectibles()
+        #print("a:", a)   # you can add parameters: (time rate for generation = 10, score rate for generation = 0)
+        #checkCollectibles()
 
     # ------------------------------------------------------------------------------------------------------------------
+
     glFlush()

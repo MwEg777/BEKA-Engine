@@ -1,6 +1,7 @@
 
 from OpenGL.GL import *
 import math
+from math import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import time
@@ -28,6 +29,8 @@ class GameObject:
         self.rotationStep = 0
         self.initialRotationStep = 0
         self.RigidBody = None
+        self.Collider = None
+        self.SpriteRenderer = None
         global GameObjects
         GameObjects.append(self)
 
@@ -135,6 +138,7 @@ class SpriteRenderer:
 
     def __init__(self, gObject):
         self.gameObject = gObject
+        self.gameObject.SpriteRenderer = self
         self.texCoordX1 = 0
         self.texCoordX2 = 0
         self.texCoordY1 = 0
@@ -298,10 +302,70 @@ class SpriteRenderer:
         # x^4e
 
 
-class BoxCollider:
+class Collider:
+    def __init__(self, gameobject, Type="box", Radius=1):
+        self.gameObject = gameobject
+        self.type = Type
+        self.radius = Radius
+        self.gameObject.Collider = self
 
-    def __init__(self, gObject):
-        self.gameObject = gObject
+    #Circle to Circle collision detection
+    def cc (self,r1,r2,x1,y1,x2,y2):
+        a = math.sqrt(pow((x2-x1),2)+pow(((y2*2)-(y1*2)),2))
+        b = r1+r2
+        print("a: ",a,", b: ",b)
+        print("x1:", x1, ", x2:", x2, ", y1:", y1, ", y2:", y2)
+        if a > b:
+            print("NO COLLISION CC")
+        else :
+            print("C O L L I S I O N CC")
+
+            CollisionPointX = (x1+x2)/2
+            CollisionPointY = (y1+y2)/2
+            #print("Collision point X:", CollisionPointX)
+            #print("Collision point Y:", CollisionPointY)
+    #Circle to Box Collision
+
+    def cb(self,r, x, y, x1, y1, x2, y2):
+        cpx = 0
+        cpy = 0
+        if x > x1:
+            if x < x2:
+                cpx = x
+        if x < x1 and x < x2:
+            cpx = x1
+        if x > x2 and x > x1:
+            cpx = x2
+        if y > y1 :
+            if y < y2:
+                cpy = y
+        if y > y1 and y > y2:
+            cpy = y1
+        if y < y2  and y < y1:
+            cpy = y2
+        a = math.sqrt(pow((cpx-x),2)+pow((cpy-y),2))
+        if a <= r:
+            print("C O L L I S I O N")
+            #print("Collision point X:", cpx)
+            #print("Collision point Y:", cpy)
+        else:
+            print("No collision cb")
+            #print("x:",x,", y:",y,", x1:",x1,", x2:",x2,", y1:",y1,", y2:",y2,", cpx:",cpx,", cpy:",cpy)
+
+    def checkCollision(self):
+
+        for gameObject in GameObjects:
+            if gameObject.Collider is not None and gameObject is not self.gameObject:
+                if gameObject.Collider.type is "box":
+                    y1ToWorld = (gameObject.getPos()[1] + ((-gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
+                    y2ToWorld = (gameObject.getPos()[1] + ((gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
+                    x1ToWorld = (gameObject.getPos()[0] + (-gameObject.SpriteRenderer.density * gameObject.getScale()[0]))
+                    x2ToWorld = (gameObject.getPos()[0] + (gameObject.SpriteRenderer.density * gameObject.getScale()[0]))
+                    self.cb(self.radius,self.gameObject.getPos()[0],self.gameObject.getPos()[1],x1ToWorld,y1ToWorld,x2ToWorld,y2ToWorld)
+                elif gameObject.Collider.type is "circle":
+                    self.cc(self.radius,gameObject.Collider.radius,self.gameObject.getPos()[0],
+                            self.gameObject.getPos()[1],gameObject.getPos()[0],gameObject.getPos()[1])
+
 
 
 class RigidBody:
