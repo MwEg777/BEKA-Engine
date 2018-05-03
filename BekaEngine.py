@@ -307,8 +307,8 @@ class Collider:
         self.collidedWith = list()
         self.onCollisionEnter = None
         self.onCollisionExit = None
-        self.cpcc = [0,0,0,0]
-        self.cpcb = [0,0,0,0]
+        self.cpcc = [0,0,0,0,"not yet result"]
+        self.cpcb = [0,0,0,0,"not yet result"]
 
     # Circle to Circle collision detection
     def cc(self, r1, r2, x1, y1, x2, y2, gameObject):
@@ -316,25 +316,27 @@ class Collider:
         b = r1 + r2
         # print("a: ",a,", b: ",b)
         # print("x1:", x1, ", x2:", x2, ", y1:", y1, ", y2:", y2)
-        if a > b:
-            return False
-            # print("NO COLLISION CC")
-        else:
+        if a <= b:
             self.cpcc[0] = (x1 + x2) / 2
             self.cpcc[1] = (y1 + y2) / 2
             self.cpcc[2] = True
             if gameObject.RigidBody is not None:
                 self.cpcc[3] = gameObject.RigidBody.direction
             self.collidedWith = gameObject
-            print(self.gameObject.name, "Collided with", gameObject.name)
+            self.cpcc[4] = "circle result"
+            #   print(self.gameObject.name, "Collided with", gameObject.name, "and cpcc is: ", self.cpcc)
             return self.cpcc
             # print("C O L L I S I O N CC")
             # print("Collision point X:", CollisionPointX)
             # print("Collision point Y:", CollisionPointY)
+            # print("NO COLLISION CC")
+        else:
+            return False
 
     # Circle to Box Collision
 
     def cb(self, r, x, y, x1, y1, x2, y2, gameObject):
+
         cpx = 0
         cpy = 0
         if x > x1:
@@ -351,6 +353,7 @@ class Collider:
             cpy = y1
         if y < y2 and y < y1:
             cpy = y2
+
         a = math.sqrt(pow((cpx - x), 2) + pow((cpy - y), 2))
         if a <= r:
             self.cpcb[0] = cpx
@@ -359,20 +362,23 @@ class Collider:
             if gameObject.RigidBody is not None:
                 self.cpcb[3] = gameObject.RigidBody.direction
             self.collidedWith = gameObject
-            print(self.gameObject.name ,"Collided with", gameObject.name)
+            self.cpcb[4] = "Box result"
+            print(self.gameObject.name ,"Collided with", gameObject.name ,"x:",x,", y:",y,", x1:",x1,", x2:",x2,", y1:",y1,", y2:",y2,", cpx:",cpx,", cpy:",cpy)
+
             return self.cpcb
 
         else:
+
             return False
             # print("No collision cb")
-            # print("x:",x,", y:",y,", x1:",x1,", x2:",x2,", y1:",y1,", y2:",y2,", cpx:",cpx,", cpy:",cpy)
+
 
     def checkCollision(self):
 
         for gameObject in GameObjects:
             if gameObject.Collider is not None and gameObject is not self.gameObject:
                 if gameObject.Collider.type is "box":
-
+                    print(gameObject.Collider.type, "<-- This must be BOX with small letters")
                     y1ToWorld = (
                     gameObject.getPos()[1] + ((-gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
                     y2ToWorld = (
@@ -384,6 +390,7 @@ class Collider:
                     return self.cb(self.radius, self.gameObject.getPos()[0], self.gameObject.getPos()[1], x1ToWorld,
                                    y1ToWorld, x2ToWorld, y2ToWorld, gameObject)
                 elif gameObject.Collider.type is "circle":
+                    #print(gameObject.Collider.type, "<-- This must be CIRCLE")
                     return self.cc(self.radius, gameObject.Collider.radius, self.gameObject.getPos()[0],
                                    self.gameObject.getPos()[1], gameObject.getPos()[0], gameObject.getPos()[1], gameObject)
 

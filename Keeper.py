@@ -254,10 +254,10 @@ def keyboard(key, x, y):
 def generateObstacle():
     global obstaclesSprites
     global obstacles
-    obstacleInfo = None
     toGenerate = random.choice([0, 1])
     if toGenerate is 0:
         toGenerateScale = random.choice([1, 2, 3])
+
     elif toGenerate is 1:
         toGenerateScale = random.choice([4, 5, 6])
     toGeneratePosX = random.uniform(-2.5,2.5)
@@ -265,10 +265,23 @@ def generateObstacle():
     obstacleSprite = SpriteRenderer(obstacle)
     obstacleRigidBody = RigidBody(obstacle)
     if toGenerate is 0:
-        obstacleCollider = Collider(obstacle,"circle",0.1)
-        obstacle.setName("Circle Obstacle")
+
+        if toGenerateScale == 1 :
+
+            obstacleCollider = Collider(obstacle, "circle", 0.06)
+            obstacle.setName("Circle Obstacle")
+        elif toGenerateScale == 2 :
+            obstacleCollider = Collider(obstacle, "circle", 0.08)
+            obstacle.setName("Circle Obstacle")
+        elif toGenerateScale == 3 :
+            obstacleCollider = Collider(obstacle, "circle", 0.2)
+            obstacle.setName("Circle Obstacle")
+
+
     elif toGenerate is 1:
+        print("Should generate a BOXX")
         obstacleCollider = Collider(obstacle, "box")
+        print("Should have generated a BOXX", obstacleCollider.type, "<-- this should say BOX")
         obstacle.setName("Bar Obstacle")
     obstacleRigidBody.useGravity = True
     obstacleRigidBody.gravityScale = 0.65
@@ -361,10 +374,10 @@ def Update():
 
         # ------------------------------------------------------------------------------------------------------------------
 
-        print("Collision status: ", poopycol.checkCollision())
+        #print("Poopy Collision status: ", poopycol.checkCollision())
 
-        for ob in obstacles:
-            print(ob[2].checkCollision())
+        #for ob in obstacles:
+        #    print(ob[2].gameObject.name,"Collision status: ",ob[2].checkCollision())
 
         glFlush()
 
