@@ -14,7 +14,7 @@ def init():
     glClearColor(1, 1, 1, 0.5)
     glMatrixMode(GL_MODELVIEW)
     global gameImages
-    gameImages = GameImages(["SM3.PNG","SM.PNG"])
+    gameImages = GameImages(["SM4.PNG","SM3.PNG"])
     backGround.Instantiate([0,0,0],[1,1,1],0)
     backGround.setScale([20, 20, 1])
 
@@ -79,7 +79,7 @@ def PassiveMotionFunc(x,y):  # Moving Mouse Without Holding Button
 
 
 
-def draw():
+def Update():
     global recx1
     global recx2
     global recy1

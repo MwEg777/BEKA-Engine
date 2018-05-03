@@ -307,9 +307,11 @@ class Collider:
         self.collidedWith = list()
         self.onCollisionEnter = None
         self.onCollisionExit = None
+        self.cpcc = [0,0,0,0]
+        self.cpcb = [0,0,0,0]
 
     # Circle to Circle collision detection
-    def cc(self, r1, r2, x1, y1, x2, y2):
+    def cc(self, r1, r2, x1, y1, x2, y2, gameObject):
         a = math.sqrt(pow((x2 - x1), 2) + pow(((y2 * 2) - (y1 * 2)), 2))
         b = r1 + r2
         # print("a: ",a,", b: ",b)
@@ -318,17 +320,21 @@ class Collider:
             return False
             # print("NO COLLISION CC")
         else:
-            return True
+            self.cpcc[0] = (x1 + x2) / 2
+            self.cpcc[1] = (y1 + y2) / 2
+            self.cpcc[2] = True
+            if gameObject.RigidBody is not None:
+                self.cpcc[3] = gameObject.RigidBody.direction
+            self.collidedWith = gameObject
+            print(self.gameObject.name, "Collided with", gameObject.name)
+            return self.cpcc
             # print("C O L L I S I O N CC")
-
-            CollisionPointX = (x1 + x2) / 2
-            CollisionPointY = (y1 + y2) / 2
             # print("Collision point X:", CollisionPointX)
             # print("Collision point Y:", CollisionPointY)
 
     # Circle to Box Collision
 
-    def cb(self, r, x, y, x1, y1, x2, y2):
+    def cb(self, r, x, y, x1, y1, x2, y2, gameObject):
         cpx = 0
         cpy = 0
         if x > x1:
@@ -347,11 +353,14 @@ class Collider:
             cpy = y2
         a = math.sqrt(pow((cpx - x), 2) + pow((cpy - y), 2))
         if a <= r:
-            # print("C O L L I S I O N")
-            # print("Collision point X:", cpx)
-            # print("Collision point Y:", cpy)
-            # print(self.gameObject.name, "is colliding with", self.collidedWith.name)
-            return True
+            self.cpcb[0] = cpx
+            self.cpcb[1] = cpy
+            self.cpcb[2] = True
+            if gameObject.RigidBody is not None:
+                self.cpcb[3] = gameObject.RigidBody.direction
+            self.collidedWith = gameObject
+            print(self.gameObject.name ,"Collided with", gameObject.name)
+            return self.cpcb
 
         else:
             return False
@@ -363,7 +372,7 @@ class Collider:
         for gameObject in GameObjects:
             if gameObject.Collider is not None and gameObject is not self.gameObject:
                 if gameObject.Collider.type is "box":
-                    self.collidedWith = gameObject
+
                     y1ToWorld = (
                     gameObject.getPos()[1] + ((-gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
                     y2ToWorld = (
@@ -373,10 +382,10 @@ class Collider:
                     x2ToWorld = (
                     gameObject.getPos()[0] + (gameObject.SpriteRenderer.density * gameObject.getScale()[0]))
                     return self.cb(self.radius, self.gameObject.getPos()[0], self.gameObject.getPos()[1], x1ToWorld,
-                                   y1ToWorld, x2ToWorld, y2ToWorld)
+                                   y1ToWorld, x2ToWorld, y2ToWorld, gameObject)
                 elif gameObject.Collider.type is "circle":
                     return self.cc(self.radius, gameObject.Collider.radius, self.gameObject.getPos()[0],
-                                   self.gameObject.getPos()[1], gameObject.getPos()[0], gameObject.getPos()[1])
+                                   self.gameObject.getPos()[1], gameObject.getPos()[0], gameObject.getPos()[1], gameObject)
 
 
 class RigidBody:
@@ -396,6 +405,9 @@ class RigidBody:
         self.timeY = 0
         self.lastForcey = 0
         self.underTorque = False
+        self.direction = [0,0]
+        self.curFrameX = self.gameObject.getPos()[0]
+        self.curFrameY = self.gameObject.getPos()[1]
 
     def getVelocity(self):
         return self.actvelocity
@@ -423,7 +435,7 @@ class RigidBody:
         #       Where Y     --> Y of first vector ( equals 0 )
         #       Where alpha --> Angle between two vectors ( self.gameObject.GetAngle() )
         newVect = [1 * math.cos(math.radians(self.gameObject.getAngle())),
-                   -1 * math.sin(math.radians(self.gameObject.getAngle()))]  # Unline after test
+                   -1 * math.sin(math.radians(self.gameObject.getAngle()))]
         #   2/Use this equation after obtaining new vector ( newVect ) to get the angle between both vectors
         print("Vector of body rotation: ", newVect)
         theta = math.acos(((Direction[0] * newVect[0]) + (Direction[1] * newVect[1])) / (
@@ -538,6 +550,22 @@ class RigidBody:
         self.gameObject.move([self.newPos[0], self.newPos[1], self.gameObject.getPos()[2]],
                              math.fabs(self.actvelocity[0]), math.fabs(self.actvelocity[1]), False)
 
+        lastFrame = self.curFrameX
+        self.curFrameX = self.gameObject.getPos()[0]
+        a = math.fabs(self.curFrameX - lastFrame)
+        if self.curFrameX > lastFrame:
+            self.direction[0] = a
+        else:
+            self.direction[0] = -a
+
+        lastFrame = self.curFrameY
+        self.curFrameY = self.gameObject.getPos()[1]
+        a = math.fabs(self.curFrameY - lastFrame)
+        if self.curFrameY > lastFrame:
+            self.direction[1] = a
+        else:
+            self.direction[1] = -a
+
 
 class UI:
     def __init__(self):
@@ -574,18 +602,16 @@ class UI:
 
         arrayToDraw = []
         mouseYToWorld = (((glutGet(GLUT_WINDOW_HEIGHT) / 2) - mouseY) / (glutGet(GLUT_WINDOW_HEIGHT) / 2)) / 2
-        mouseXToWorld = ((mouseX - (glutGet(GLUT_WINDOW_WIDTH) / 2)) / (glutGet(GLUT_WINDOW_WIDTH) / 4))
-
-        # print ("if", mouseYToWorld, "<",( self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 2) * self.gameObject.getScale()[1])))
+        mouseXToWorld = ((mouseX - (glutGet(GLUT_WINDOW_WIDTH) / 2)) / (glutGet(GLUT_WINDOW_WIDTH) / 4)) / 2
 
         if mouseYToWorld > (
             self.gameObject.getPos()[1] + ((-self.spriteRenderer.height / 4) * self.gameObject.getScale()[1])) \
                 and mouseYToWorld < (
                     self.gameObject.getPos()[1] + ((self.spriteRenderer.height / 4) * self.gameObject.getScale()[1])) \
                 and mouseXToWorld > (
-                    self.gameObject.getPos()[0] + ((-self.spriteRenderer.density) * self.gameObject.getScale()[0])) \
+                    self.gameObject.getPos()[0] + ((-self.spriteRenderer.density / 2) * self.gameObject.getScale()[0])) \
                 and mouseXToWorld < (
-                    self.gameObject.getPos()[0] + ((self.spriteRenderer.density) * self.gameObject.getScale()[0])):
+                    self.gameObject.getPos()[0] + ((self.spriteRenderer.density / 2) * self.gameObject.getScale()[0])):
 
             self.Hovering = True
         else:
@@ -600,7 +626,8 @@ class UI:
                 else:
                     self.spriteRenderer.setColor(self.hoverColor)
                     if self.Holding:
-                        self.onClick(self.onClickFunction)
+                        if self.onClickFunction is not None:
+                            self.onClick(self.onClickFunction)
                         self.Holding = False
             else:
                 self.spriteRenderer.setColor(self.normalColor)
