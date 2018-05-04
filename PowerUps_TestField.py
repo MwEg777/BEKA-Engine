@@ -68,7 +68,8 @@ def generatePowerUp(t=10, s=0):  # Switches
 
     generate = False
     if currentCheck is True:
-        print("💃💃💃💃💃💃💃💃💃💃💃💃💃💃 powerup successfully generated 💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃")
+        #print("💃💃💃💃💃💃💃💃💃💃💃💃💃💃 powerup successfully generated 💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃💃")
+        #print(currentScore)
         generate = True
     else:
         generate = False
@@ -100,7 +101,8 @@ def generatePowerUp(t=10, s=0):  # Switches
 
 
 def checkCollectibles():    # Hookup with sprites
-    print("collectedPowerUps: ",collectedPowerUps)
+    #print("collectedPowerUps: ",collectedPowerUps)
+    pass
 
 
 def checkIfCollected(someColliderFunction, generatePowerUp):
