@@ -49,7 +49,7 @@ playButton = UI()
 optionsButton = UI()
 creditsButton = UI()
 exitButton = UI()
-
+sound = None
 bgy = 0
 def init():
 
@@ -58,13 +58,13 @@ def init():
     # ------------------------------------------------------------------------------------------------------
 
     # glutSetCursor(GLUT_CURSOR_NONE) # Enable when game development ends.
-
+    global sound
     glClearColor(1, 1, 1, 0.5)
     glMatrixMode(GL_MODELVIEW)
 
     mixer.init(frequency=48000)
     sound = mixer.Sound("ohwe.wav")
-    # sound.play()  # Sound Importing Functions.
+      # Sound Importing Functions.
 
     global gameImages
     gameImages = GameImages(["bg.png", "SpriteSheet.png", "Font1.png", "Obstacles.png","menuBG.png"])  # Only one instance is needed!
@@ -198,7 +198,10 @@ def PassiveMotionFunc(x, y):
 
     mouse_x = x
     mouse_y = y
-    rick.move([mouseXToWorld, mouseYToWorld, rick.getPos()[2]], 0.1, 0.05)  # Pos, SpeedX, SpeedY
+    if mouseYToWorld < 0.3:
+        rick.move([mouseXToWorld, mouseYToWorld, rick.getPos()[2]], 0.1, 0.05)  # Pos, SpeedX, SpeedY
+    else:
+        rick.move([mouseXToWorld, 0.3, rick.getPos()[2]], 0.1, 0.05)  # Pos, SpeedX, SpeedY
 
 
 def playButtonFunc():
@@ -229,8 +232,13 @@ def MouseMotion(button, state, x, y):  # Triggers with both MouseClick Down or U
     for ui in UIs:
         if ui.type == "button":
             ui.state = state
-    if state == 0 and scene is "Menu2":
-        scene = "Menu"
+    if state == 0:
+        if scene is "Menu2":
+            scene = "Menu"
+        elif scene is "Score":
+            exit(0)
+
+
 
 
 def arrow_key(key, x, y):
@@ -263,6 +271,7 @@ def generateObstacle():
     toGeneratePosX = random.uniform(-2.5,2.5)
     obstacle = GameObject()
     obstacleSprite = SpriteRenderer(obstacle)
+    obstacle.move([toGeneratePosX, 1.2, 1], 1, 1, False)
     obstacleRigidBody = RigidBody(obstacle)
     if toGenerate is 0:
 
@@ -282,13 +291,18 @@ def generateObstacle():
         print("Should generate a BOXX")
         obstacleCollider = Collider(obstacle, "box")
         print("Should have generated a BOXX", obstacleCollider.type, "<-- this should say BOX")
-        obstacle.setName("Bar Obstacle")
+        count = 0
+        for element in obstacles:
+            if element[2] is "box":
+                count += 1
+        name = "Bar Obstacle " + str(count)
+        obstacle.setName(name)
     obstacleRigidBody.useGravity = True
-    obstacleRigidBody.gravityScale = 0.65
+    obstacleRigidBody.gravityScale = 0.7
     obstacle.Instantiate()
     obstacle.setScale([toGenerateScale,toGenerateScale,1])
     obstacle.move([toGeneratePosX, 1.2, 1], 1, 1, False)
-    obstacles.append([obstacleSprite, obstacleRigidBody, obstacleCollider, toGenerate,toGeneratePosX,toGenerateScale])
+    obstacles.append([obstacleSprite, obstacleRigidBody, obstacleCollider.type, toGenerate,toGeneratePosX,toGenerateScale])
     if toGeneratePosX >= 1:
         if toGenerate is 0 and toGenerateScale is not 1:
             obstacleRigidBody.AddForce(-0.005)
@@ -299,15 +313,33 @@ def generateObstacle():
             obstacleRigidBody.AddForce(0.005)
         else:
             obstacleRigidBody.AddForce(0.01)
+    print("must say BOXX", obstacleCollider.type, "<-- this MUST say BOX")
     #Need to provide an array for each element
     #1/type whether box or circle or etc
     #2/X position
     #3/Scale of X and Y in order
 
+    #for object in rickcol.collidedWith:
+        #object.Rigidbody.AddForceAtPosition(1,rickcol.)
+
 
 obstacleDelay = 0
 obstacleInterval = 2
 
+scoreDelay = 0
+scoreInterval = 1
+
+score = 0
+
+alive = True
+
+poopystate = 0
+scorecolor = [1,1,1,1]
+scoresize = 1
+
+idkdelay = 0
+idkinterval = 2
+numshit = 500
 
 def Update():
     global scene
@@ -322,17 +354,48 @@ def Update():
         global gameImages
         global obstacleDelay
         global obstacleInterval
+        global scoreDelay
+        global scoreInterval
         global bgy
+        global score
+        global alive
+        global rickcol
+        global sound
+        global poopystate
+        global scorecolor
+        global scoresize
+        global idkdelay
+        global idkinterval
+        global numshit
         glClear(GL_COLOR_BUFFER_BIT)
-
         bgy += 0.0025
         if bgy >= 1:
             bgy = 0
 
         obstacleDelay += 1
-        if (obstacleDelay / 60).is_integer() and (obstacleDelay / 60) > obstacleInterval:
+        if (obstacleDelay / 10).is_integer() and (obstacleDelay / 10) > obstacleInterval:
             generateObstacle()
             print("Generated one obstacle!")
+        if alive:
+            scoreDelay += 1
+            if (scoreDelay / 30).is_integer() and (scoreDelay / 30) > scoreInterval:
+                score += 1
+
+
+        idkdelay += 1
+        if (idkdelay / numshit).is_integer() and (idkdelay / numshit) > idkinterval:
+            if poopystate == 1:
+                poopystate = 0
+                scorecolor = [1, 1, 1, 1]
+                scoresize = 1
+                numshit = 500
+            else:
+                poopystate = 1
+                scorecolor = [0, 1, 0, 1]
+                scoresize = 2
+                sound.play()
+                numshit = 60
+
 
         gameImages.curImage(1)  # Load Gradient initial Background, and apply the following effects.
         backGroundSprite.DrawSprite(0, 1, 0 + bgy, 1 +bgy, 0.3)  # x1, x2, y1, y2, aspect ratio
@@ -341,44 +404,61 @@ def Update():
 
         gameImages.curImage(2)  # SpritesSHEET
         ricksprite.DrawSprite(0.1025 , 0.203 , 0.89625 , 0.99875 , 1.0)
-        rickcol.checkCollision()
+
         # ----
-        poopysprite.DrawSprite(0.0 , 0.1025 , 0.89625 , 1.0 , 1)
+        if poopystate == 0:
+            poopysprite.DrawSprite(0.0 , 0.1025 , 0.89625 , 1.0 , 1)
+        elif poopystate == 1:
+            poopysprite.DrawSprite(0.0 , 0.10375 , 0.79375 , 0.89625 , 1)
         # ----
 
-        gameImages.curImage(3)  # Fonts
-        drawText("Score: ", [-1.72, 0.9, 0], 0.5, [0.9, 0.2, 0.1, 1])   # (Text, Pos, Size, Color)
 
-
-        gameImages.curImage(2)
 
         # ------------------------------------Powerups Generation Part--------------------------------------------------
-        a = generatePowerUp(0, 1)
-        if a is not None:
-            pass
+        #a = generatePowerUp(0, 1)
+        #if a is not None:
+            #pass
             # print("a:", a)   # you can add parameters: (time rate for generation = 10, score rate for generation = 0)
-            checkCollectibles()
+            #checkCollectibles()
 
         # ------------------------------------------------------------------------------------------------------------------
 
-        # ------------------------------------Obstacle Generation Part--------------------------------------------------
+        # ------------------------------------Obstacle Processing Part--------------------------------------------------
         gameImages.curImage(4)
         for obstacle in obstacles:  # For each obstacle in the obstacles array
-            if obstacle[3] == 0:    # if obstacle generated type is Circle
+            if obstacle[2] == "circle":    # if obstacle generated type is Circle
                 obstacle[0].DrawSprite(0.3975, 0.48625, 0.885, 0.97375, 1.0) # Draw the circle part of the sprite sheet
-            elif obstacle[3] == 1:  # if obstacle generated type is Box
+            elif obstacle[2] == "box":  # if obstacle generated type is Box
                 obstacle[0].DrawSprite(0.0275, 0.22875, 0.95375, 0.97375, 10.0625)  # Draw box part of the sprite sheet
             obstacle[1].simulate()  # simulate object's rigid body physics
             if obstacle[0].gameObject.getPos()[1] <= -4: # If object is completely out of screen Y coordinates:
                 obstacles.remove(obstacle)
+            if not obstacle[0].gameObject.Collider.collidable:
+                disappear(obstacle)
 
         # ------------------------------------------------------------------------------------------------------------------
 
-        #print("Poopy Collision status: ", poopycol.checkCollision())
+        rickcol.checkCollision()
 
-        #for ob in obstacles:
-        #    print(ob[2].gameObject.name,"Collision status: ",ob[2].checkCollision())
+        print(len(GameObjects))
+        poopycol.checkCollision()
+        print("poopy is collided with",poopycol.collidedWith)
+        for element in poopycol.collidedWith:
+            if element[0] is not rick:
+                alive = False
+                scene = "Score"
+        for element in rickcol.collidedWith:
+            if element[0].RigidBody is not None:
+                element[0].RigidBody.newPos[1] = - element[0].RigidBody.newPos[1]
+                element[0].RigidBody.AddForce(0.015, [0, 1])
+                if rick.getPos()[0] > element[0].getPos()[0]:
+                    element[0].RigidBody.AddTorque(random.uniform(0.01,0.03))
+                else:
+                    element[0].RigidBody.AddTorque(-random.uniform(0.01,0.03))
+                rickcol.collidedWith.remove(element)
 
+        gameImages.curImage(3)  # Fonts
+        drawText(str(score), [0, 0.7, 0], scoresize, scorecolor)
         glFlush()
 
     elif scene == "Menu":
@@ -387,7 +467,6 @@ def Update():
         gameImages.curImage(5)
         menuBackGroundSprite.DrawSprite(0, 1, 0, 1, 1)  # x1, x2, y1, y2, aspect ratio
         gameImages.curImage(2)
-
         # Play button
 
         if playButton.Hovering and not playButton.Holding:
@@ -440,3 +519,20 @@ def Update():
         drawText("KAREEM ALLAM", [0.7, 0, 0], 0.3, [0, 0, 0, 1])
 
         glFlush()
+
+    elif scene == "Score":
+        glClear(GL_COLOR_BUFFER_BIT)
+        gameImages.curImage(1)  # Load Gradient initial Background, and apply the following effects.
+        backGroundSprite.DrawSprite(0, 1, 0, 1, 0.3)  # x1, x2, y1, y2, aspect ratio
+        gameImages.curImage(3)
+        drawText("Score", [-0.4,0.2,0],1)
+        drawText(str(score),[0,-0.2,0],1)
+        glFlush()
+
+
+def disappear(obstacle):
+    if obstacle[0].gameObject.name[0] is not 'D':
+        obstacle[0].gameObject.name = 'D' + obstacle[0].gameObject.name
+        obstacle[0].setColor([1,(obstacle[0].color[1] - 0.02),(obstacle[0].color[2] - 0.02),(obstacle[0].color[3] - 0.02)])
+    else:
+        obstacle[0].setColor([1, (obstacle[0].color[1] - 0.02),(obstacle[0].color[2] - 0.02), (obstacle[0].color[3] - 0.02)])

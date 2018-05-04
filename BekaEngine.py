@@ -309,6 +309,7 @@ class Collider:
         self.onCollisionExit = None
         self.cpcc = [0,0,0,0,"not yet result"]
         self.cpcb = [0,0,0,0,"not yet result"]
+        self.collidable = True
 
     # Circle to Circle collision detection
     def cc(self, r1, r2, x1, y1, x2, y2, gameObject):
@@ -322,16 +323,23 @@ class Collider:
             self.cpcc[2] = True
             if gameObject.RigidBody is not None:
                 self.cpcc[3] = gameObject.RigidBody.direction
-            self.collidedWith = gameObject
             self.cpcc[4] = "circle result"
             #   print(self.gameObject.name, "Collided with", gameObject.name, "and cpcc is: ", self.cpcc)
-            return self.cpcc
+            exists = False
+            for element in self.collidedWith:
+                if gameObject == element[0]:
+                    exists = True
+            if not exists and gameObject.Collider.collidable:
+                self.collidedWith.append([gameObject,(x1 + x2) / 2,(y1 + y2) / 2])
+                gameObject.Collider.collidable = False
             # print("C O L L I S I O N CC")
             # print("Collision point X:", CollisionPointX)
             # print("Collision point Y:", CollisionPointY)
             # print("NO COLLISION CC")
         else:
-            return False
+            for element in self.collidedWith:
+                if gameObject == element[0]:
+                    self.collidedWith.remove(element)
 
     # Circle to Box Collision
 
@@ -361,37 +369,39 @@ class Collider:
             self.cpcb[2] = True
             if gameObject.RigidBody is not None:
                 self.cpcb[3] = gameObject.RigidBody.direction
-            self.collidedWith = gameObject
             self.cpcb[4] = "Box result"
-            print(self.gameObject.name ,"Collided with", gameObject.name ,"x:",x,", y:",y,", x1:",x1,", x2:",x2,", y1:",y1,", y2:",y2,", cpx:",cpx,", cpy:",cpy)
-
-            return self.cpcb
+            exists = False
+            for element in self.collidedWith:
+                if gameObject == element[0]:
+                    exists = True
+            if not exists and gameObject.Collider.collidable:
+                self.collidedWith.append([gameObject,cpx,cpy])
+                gameObject.Collider.collidable = False
 
         else:
 
-            return False
-            # print("No collision cb")
+            for element in self.collidedWith:
+                if gameObject == element[0]:
+                    self.collidedWith.remove(element)
 
 
     def checkCollision(self):
 
         for gameObject in GameObjects:
-            if gameObject.Collider is not None and gameObject is not self.gameObject:
+            if gameObject is not self.gameObject and gameObject.Collider is not None:
                 if gameObject.Collider.type is "box":
-                    print(gameObject.Collider.type, "<-- This must be BOX with small letters")
                     y1ToWorld = (
                     gameObject.getPos()[1] + ((-gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
                     y2ToWorld = (
                     gameObject.getPos()[1] + ((gameObject.SpriteRenderer.height / 2) * gameObject.getScale()[1]))
                     x1ToWorld = (
-                    gameObject.getPos()[0] + (-gameObject.SpriteRenderer.density * gameObject.getScale()[0]))
+                    gameObject.getPos()[0] + (-gameObject.SpriteRenderer.density / 2 * gameObject.getScale()[0]))
                     x2ToWorld = (
-                    gameObject.getPos()[0] + (gameObject.SpriteRenderer.density * gameObject.getScale()[0]))
-                    return self.cb(self.radius, self.gameObject.getPos()[0], self.gameObject.getPos()[1], x1ToWorld,
+                    gameObject.getPos()[0] + (gameObject.SpriteRenderer.density / 2 * gameObject.getScale()[0]))
+                    self.cb(self.radius, self.gameObject.getPos()[0], self.gameObject.getPos()[1], x1ToWorld,
                                    y1ToWorld, x2ToWorld, y2ToWorld, gameObject)
                 elif gameObject.Collider.type is "circle":
-                    #print(gameObject.Collider.type, "<-- This must be CIRCLE")
-                    return self.cc(self.radius, gameObject.Collider.radius, self.gameObject.getPos()[0],
+                    self.cc(self.radius, gameObject.Collider.radius, self.gameObject.getPos()[0],
                                    self.gameObject.getPos()[1], gameObject.getPos()[0], gameObject.getPos()[1], gameObject)
 
 
@@ -444,7 +454,6 @@ class RigidBody:
         newVect = [1 * math.cos(math.radians(self.gameObject.getAngle())),
                    -1 * math.sin(math.radians(self.gameObject.getAngle()))]
         #   2/Use this equation after obtaining new vector ( newVect ) to get the angle between both vectors
-        print("Vector of body rotation: ", newVect)
         theta = math.acos(((Direction[0] * newVect[0]) + (Direction[1] * newVect[1])) / (
         (math.sqrt((math.pow(Direction[0], 2) + math.pow(Direction[1], 2)))) * (
         (math.sqrt((math.pow(newVect[0], 2) + math.pow(newVect[1], 2)))))))  # Unline after test
@@ -453,7 +462,6 @@ class RigidBody:
         # r = Test[0]
         # theta = Test[1]
         torque = Force * r * math.sin(math.radians(theta))
-        print("Torque = ", torque, ", math.sin(theta) = ", math.sin(math.radians(theta)), ", Theta = ", theta)
 
         self.AddTorque(torque)
 
@@ -463,8 +471,8 @@ class RigidBody:
 
 
 
-
-        self.AddForce(Force, Direction)
+        print("Adding force amount of", Force,"and direction of", Direction, "to",self.gameObject.name)
+        #self.AddForce(Force, Direction)
 
         # --------------------------------------------------------------------------------------
 
@@ -530,7 +538,8 @@ class RigidBody:
         (self.gravityScale if self.useGravity else 0) * self.gravityAcceleration * -0.001 * self.timeY)
 
         self.newPos[1] += self.actvelocity[1]
-
+        if(self.gameObject.name == "Bar Obstacle 0"):
+            print("newPos is: ", self.newPos[1],"curPos is:" , self.gameObject.getPos()[1],", actVelocity is: ",self.actvelocity[1])
         if not self.useGravity:
             self.timeY = 0
         if self.timeY > 5.5:
@@ -740,11 +749,13 @@ def drawText(text="text", textPosition=[0, 0, 0], textSize=1, textColor=[1, 1, 1
     for char in list(text):
         c = UI()
         c.Create("char", char)
+        c.gameObject.Instantiate()
         c.gameObject.move([textPosition[0] + textX, textPosition[1], textPosition[2]], 1, 1, False)
         c.gameObject.setScale([textSize, textSize, 1])
         c.spriteRenderer.setColor(textColor)
         c.DrawUI()
         textX += c.spriteRenderer.density * 2 * textSize
+        GameObjects.remove(c.gameObject)
 
 
 def drawChar(char="A", charPosition=[0, 0, 0], charSize=1, charColor=[1, 1, 1, 1]):
