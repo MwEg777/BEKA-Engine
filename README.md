@@ -425,6 +425,14 @@ Example project included.
 - **Notes**:
 	-  Font included is Rick and Morty's Calligraphr-Regular font, I do NOT own it. If you wish to use this engine for non-personal use, make sure to contact font owner and ask for permission.
 	- Included images and sounds are only for test purposes, no copyright infringement intended. do NOT use for non-personal purposes before contacting media owners and asking them for permission. Otherwise, it is your responsibility.
+
+- **Credits**:
+	- Main Contributor: **Karim Salah**
+	- Co-Contributors:
+		- **Omar El Leboudy** *(Implemented colliders)*
+		-  **Bola Fahmi**
+		-  **Ahmed Reda**
+
 ---
 ---
 ---
